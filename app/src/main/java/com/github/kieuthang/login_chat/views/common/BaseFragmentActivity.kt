@@ -15,8 +15,6 @@ import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.ApplicationUtils
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
-import com.github.kieuthang.login_chat.service.GSAService
-import com.github.kieuthang.login_chat.service.IntervalTaskService
 
 abstract class BaseFragmentActivity : AppCompatActivity() {
 
@@ -102,7 +100,7 @@ abstract class BaseFragmentActivity : AppCompatActivity() {
             return
         val popUpDialogFragment = PopupDialogFragment()
         popUpDialogFragment.setListener(listener)
-        val builder = PopupDialogFragment.Builder
+        val builder = PopupDialogFragment
         builder.mContent = content
         builder.type = type
         builder.requestCode = requestCode
@@ -119,26 +117,5 @@ abstract class BaseFragmentActivity : AppCompatActivity() {
         }
     }
 
-    fun launchGSAServices() {
-        val isServiceRunning = ApplicationUtils.isMyServiceRunning(GSAService::class.java, this@BaseFragmentActivity)
-        AppLog.d(AppConstants.TAG, "launchGSAServices :$isServiceRunning")
-        if (isServiceRunning)
-            return
-        //WakefulIntentService.sendWakefulWork(this, GSAService::class.java)
-        val intent = Intent(this, GSAService::class.java)
-        startService(intent)
-        buildIntervalService()
-    }
 
-    private fun buildIntervalService() {
-        AppLog.d(AppConstants.TAG, "buildIntervalService")
-        stopInternalService()
-        IntervalTaskService.scheduleRepeat(this)
-        IntervalTaskService.scheduleNetworkChanged(this)
-    }
-
-    private fun stopInternalService() {
-        IntervalTaskService.cancelRepeat(this)
-        IntervalTaskService.cancelAll(this)
-    }
 }

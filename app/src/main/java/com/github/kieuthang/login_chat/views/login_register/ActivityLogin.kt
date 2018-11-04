@@ -93,25 +93,15 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
         tvContactSupporter.text = ss
         tvContactSupporter.movementMethod = LinkMovementMethod.getInstance()
 
-        if (!requestNeededPermissions())
-            setupData()
+        requestNeededPermissions()
 
-//        val isGuard = true
-//        if (isGuard)
-//            edtEmail.setText("applicateit11@gmail.com")
-//        else
-//            edtEmail.setText("khanhxt@applicateit.net")
-//        edtPassword.setText("537853")
     }
 
     private fun requestNeededPermissions(): Boolean {
-        val locationPermission = PermissionChecker.checkSelfPermission(this@ActivityLogin, Manifest.permission.ACCESS_FINE_LOCATION)
         val storagePermission = PermissionChecker.checkSelfPermission(this@ActivityLogin, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
         val permissions = ArrayList<String>()
-        if (locationPermission != PermissionChecker.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+
         if (storagePermission != PermissionChecker.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -127,7 +117,7 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
             REQUEST_CODE_PERMISSION -> {
                 val allGranted = grantResults.none { it != PermissionChecker.PERMISSION_GRANTED }
                 if (!allGranted) {
-                    showDialog(PopupDialogFragment.Type.WARNING, 0, getString(R.string.gsa_cannot_run_without_your_permission), "", false, getString(R.string.ok), "", 0, object : IPopupDialogFragment {
+                    showDialog(PopupDialogFragment.Type.WARNING, 0, getString(R.string.plz_accept_the_needed_permission_first, "", false, getString(R.string.ok), "", 0, object : IPopupDialogFragment {
                         override fun clickPositiveText(requestCode: Int) {
                             finish()
                         }
@@ -136,29 +126,9 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
 
                         }
                     })
-                } else {
-                    setupData()
                 }
             }
         }
-    }
-
-    private fun setupData() {
-        val iDataCacheApi = DataCacheApiImpl(this)
-        val userModel = iDataCacheApi.getUserModel();
-        if(userModel == null){
-            Handler().postDelayed({ onShowKeyBoard(edtEmail) }, 500)
-            return
-        }
-        if (AppConstants.UserRole.GUARD == userModel.role) {
-            onHideKeyBoard(edtEmail)
-            startActivity(ActivityGuardNewCaseNormal.createIntent(this))
-            finish()
-            return
-        }
-        onHideKeyBoard(edtEmail)
-        startActivity(ActivityHome.createIntent(this))
-        finish()
     }
 
     private fun doLogin() {
