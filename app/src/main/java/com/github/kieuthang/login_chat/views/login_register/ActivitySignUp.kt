@@ -10,11 +10,13 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.View
 import com.github.kieuthang.login_chat.R
+import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
 import com.github.kieuthang.login_chat.common.utils.StringUtils
 import com.github.kieuthang.login_chat.common.utils.ViewPressEffectHelper
 import com.github.kieuthang.login_chat.data.entity.AccessToken
 import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
+import com.github.kieuthang.login_chat.views.ActivityHome
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
 import kotlinx.android.synthetic.main.activity_signup.*
 
@@ -49,6 +51,10 @@ class ActivitySignUp : BaseFragmentActivity() {
                 }
             }
         })
+        tvGotoLogin.setOnClickListener {
+            startActivity(ActivityLogin.createLoginNewTaskIntent(this))
+            finish()
+        }
     }
 
     private fun doForgotPW() {
@@ -57,15 +63,15 @@ class ActivitySignUp : BaseFragmentActivity() {
         val lastName = edtLastName.text.toString()
         val password = edtPassword.text.toString()
 
-        if (!TextUtils.isEmpty(firstName)) {
+        if (TextUtils.isEmpty(firstName)) {
             showError(getString(R.string.first_name_cannot_be_empty))
             return
         }
-        if (!TextUtils.isEmpty(lastName)) {
+        if (TextUtils.isEmpty(lastName)) {
             showError(getString(R.string.last_name_cannot_be_empty))
             return
         }
-        if (!TextUtils.isEmpty(password)) {
+        if (TextUtils.isEmpty(password)) {
             showError(getString(R.string.password_cannot_be_empty))
             return
         }
@@ -96,13 +102,23 @@ class ActivitySignUp : BaseFragmentActivity() {
 
     }
 
-    override fun onRegisterResult(t: BaseResponseModel?, throwable: Throwable?) {
+    override fun onRegisterResult(t: AccessToken?, throwable: Throwable?) {
         super.onRegisterResult(t, throwable)
         if(throwable != null){
             showError(getString(R.string.something_went_wrong_please_try_again_later))
             return
         }
-        showToastMessage(t!!.message!!.toString())
+        var message = t!!.message!!.toString()
+        if(t.code != AppConstants.APICodeResponse.SUCCESS){
+            if(TextUtils.isEmpty(message)){
+                message = getString(R.string.something_went_wrong_please_try_again_later)
+            }
+            showToastMessage(message)
+            return
+        }
+        showToastMessage(message)
+        startActivity(ActivityHome.createIntent(this))
+        finish()
     }
 
     companion object {

@@ -150,12 +150,12 @@
                 android:textSize="@dimen/textLoginContentSize" />
 
             <com.github.kieuthang.login_chat.views.widget.SFUITextView
-                android:id="@+id/tvForgotPw"
+                android:id="@+id/tvGotoLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/margin_big"
-                android:text="@string/forgot_password"
+                android:text="@string/go_to_login"
                 android:textColor="@color/hintColorForgotPWText"
                 android:textSize="@dimen/textForgotPWSize" />
 

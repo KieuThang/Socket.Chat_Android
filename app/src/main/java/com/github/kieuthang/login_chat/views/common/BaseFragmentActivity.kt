@@ -15,7 +15,6 @@ import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
 import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
 import com.github.kieuthang.login_chat.data.entity.UserModel
 
 abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
@@ -135,7 +134,7 @@ abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
 
     }
 
-    override fun onRegisterResult(t: BaseResponseModel?, throwable: Throwable?) {
+    override fun onRegisterResult(t: AccessToken?, throwable: Throwable?) {
 
     }
 

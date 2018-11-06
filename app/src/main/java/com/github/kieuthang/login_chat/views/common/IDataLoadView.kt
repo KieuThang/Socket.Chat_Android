@@ -10,5 +10,5 @@ interface IDataLoadView : BaseContract.View {
 
     fun onGetMyProfileResult(t: UserModel?, throwable: Throwable?)
 
-    fun onRegisterResult(t: BaseResponseModel?, throwable: Throwable?)
+    fun onRegisterResult(t: AccessToken?, throwable: Throwable?)
 }

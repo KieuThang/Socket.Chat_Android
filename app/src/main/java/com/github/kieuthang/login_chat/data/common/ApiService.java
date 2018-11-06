@@ -18,10 +18,9 @@ public interface ApiService {
     Call<Rooms> getRooms();
 
     @FormUrlEncoded
-    @POST
+    @POST("users/login")
     Call<AccessToken> login(@Field("email") String email, @Field("password") String password);
 
-    @FormUrlEncoded
-    @POST
-    Call<BaseResponseModel> register(@Body UserModel userModel);
+    @POST("users/register")
+    Call<AccessToken> register(@Body UserModel userModel);
 }

@@ -5,7 +5,6 @@ import android.content.Context
 import com.github.kieuthang.login_chat.data.DataRepositoryImpl
 import com.github.kieuthang.login_chat.data.DefaultSubscriber
 import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
 import com.github.kieuthang.login_chat.data.entity.UserModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -60,8 +59,8 @@ class DataPresenter internal constructor(context: Context) : BaseContract.Presen
 
     fun register(firstName: String, lastName: String, email: String, password: String) {
         iDataRepository!!.register(firstName, lastName, email, password).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DefaultSubscriber<BaseResponseModel>() {
-                    override fun onNext(t: BaseResponseModel) {
+                .subscribe(object : DefaultSubscriber<AccessToken>() {
+                    override fun onNext(t: AccessToken) {
                         super.onNext(t)
                         iLoginDataLoadView!!.hideLoading()
                         iLoginDataLoadView!!.onRegisterResult(t, null)

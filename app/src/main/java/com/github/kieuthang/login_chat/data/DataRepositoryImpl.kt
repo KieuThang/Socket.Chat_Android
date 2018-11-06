@@ -9,7 +9,6 @@ import com.github.kieuthang.login_chat.data.common.BaseRepositoryImpl
 import com.github.kieuthang.login_chat.data.common.RestApiClient
 import com.github.kieuthang.login_chat.data.common.cache.DataCacheApiImpl
 import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
 import com.github.kieuthang.login_chat.data.entity.LoginRequest
 import com.github.kieuthang.login_chat.data.entity.UserModel
 import com.github.kieuthang.login_chat.views.common.IDataRepository
@@ -22,7 +21,7 @@ import retrofit2.Response
 
 class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataRepository {
 
-    override fun register(firstName: String, lastName: String, email: String, password: String): Observable<BaseResponseModel> {
+    override fun register(firstName: String, lastName: String, email: String, password: String): Observable<AccessToken> {
         return Observable.create { subscriber ->
             val apiService = RestApiClient.getClient().create(ApiService::class.java)
 
@@ -33,8 +32,8 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
             request.lastName = lastName
             AppLog.d(AppConstants.TAG, "register START=> email:$email,password:$password")
             val call = apiService.register(request)
-            call.enqueue(object : Callback<BaseResponseModel> {
-                override fun onResponse(call: Call<BaseResponseModel>, response: Response<BaseResponseModel>) {
+            call.enqueue(object : Callback<AccessToken> {
+                override fun onResponse(call: Call<AccessToken>, response: Response<AccessToken>) {
                     val result = response.body()
                     if (result == null) {
                         subscriber.onError(Throwable())
@@ -43,11 +42,15 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
                     val resultJson = ApplicationUtils.makeJsonObject(result)
                     AppLog.d(AppConstants.TAG, "register success=>: $resultJson")
 
+                    val iDataCacheApi = DataCacheApiImpl(mContext)
+
+                    val newResultJson = ApplicationUtils.makeJsonObject(resultJson)
+                    iDataCacheApi.saveDataToCache(AppConstants.Cache.ACCESS_TOKEN, newResultJson)
                     subscriber.onNext(result)
                     subscriber.onComplete()
                 }
 
-                override fun onFailure(call: Call<BaseResponseModel>, t: Throwable) {
+                override fun onFailure(call: Call<AccessToken>, t: Throwable) {
                     AppLog.d(AppConstants.TAG, "register onFailure: " + t.message)
                     subscriber.onError(Throwable())
                 }
@@ -80,9 +83,8 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
 
                     val newAccessToken = Gson().fromJson<AccessToken>(resultJson, AccessToken::class.java)
                     val iDataCacheApi = DataCacheApiImpl(mContext)
-                    val accessToken = iDataCacheApi.getAccessToken()
 
-                    val newResultJson = ApplicationUtils.makeJsonObject(newAccessToken).toString()
+                    val newResultJson = ApplicationUtils.makeJsonObject(newAccessToken)
                     iDataCacheApi.saveDataToCache(AppConstants.Cache.ACCESS_TOKEN, newResultJson)
 
                     subscriber.onNext(newAccessToken)

@@ -19,7 +19,7 @@ public abstract class Cache(protected val mContext: Context) {
             val f = File(fileDir)
             return f.exists()
         } catch (e: PackageManager.NameNotFoundException) {
-            AppLog.e(AppConstants.TAG, e.message)
+            AppLog.e(AppConstants.TAG, e.message!!)
             return false
         }
     }

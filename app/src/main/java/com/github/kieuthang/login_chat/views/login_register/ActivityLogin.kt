@@ -13,8 +13,10 @@ import android.text.style.ClickableSpan
 import android.view.KeyEvent
 import android.view.View
 import com.github.kieuthang.login_chat.R
+import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.*
 import com.github.kieuthang.login_chat.data.entity.AccessToken
+import com.github.kieuthang.login_chat.views.ActivityHome
 import com.github.kieuthang.login_chat.views.common.*
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -62,7 +64,10 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
             false
         })
 
-        tvForgotPw.setOnClickListener { startActivity(ActivitySignUp.createIntent(this)) }
+        tvForgotPw.setOnClickListener {
+            startActivity(ActivitySignUp.createIntent(this))
+            finish()
+        }
         ViewPressEffectHelper.attach(btnLogin)
         ViewPressEffectHelper.attach(tvForgotPw)
 
@@ -127,7 +132,7 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
         layoutBlockDeleted.visibility = View.GONE
         val email = edtEmail.text.toString()
         val password = edtPassword.text.toString()
-        if(TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             showError(getString(R.string.email_address_cannot_be_empty))
             return
         }
@@ -160,8 +165,11 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
     }
 
     override fun onLoginResult(accessToken: AccessToken?) {
-        if (accessToken == null) {
-            showToastMessage(getString(R.string.incorrect_email_or_password))
+        if (accessToken == null || accessToken.code != AppConstants.APICodeResponse.SUCCESS) {
+            var message = if (accessToken == null) null else accessToken.message
+            if (TextUtils.isEmpty(message))
+                message = getString(R.string.incorrect_email_or_password)
+            showToastMessage(message.toString())
             return
         }
 
@@ -179,7 +187,7 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
         }
 
         onHideKeyBoard(edtEmail)
-        mLoginPresenter!!.getMyProfile(true)
-
+        startActivity(ActivityHome.createIntent(this))
+        finish()
     }
 }
