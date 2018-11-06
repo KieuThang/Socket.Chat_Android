@@ -5,7 +5,8 @@ import android.content.Context
 import com.github.kieuthang.login_chat.data.DataRepositoryImpl
 import com.github.kieuthang.login_chat.data.DefaultSubscriber
 import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
+import com.github.kieuthang.login_chat.data.entity.UserModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -42,8 +43,8 @@ class DataPresenter internal constructor(context: Context) : BaseContract.Presen
 
     internal fun getMyProfile(isPullToRefresh: Boolean) {
         iDataRepository!!.getMyProfile(isPullToRefresh).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DefaultSubscriber<UserResponseModel>() {
-                    override fun onNext(t: UserResponseModel) {
+                .subscribe(object : DefaultSubscriber<UserModel>() {
+                    override fun onNext(t: UserModel) {
                         super.onNext(t)
                         iLoginDataLoadView!!.hideLoading()
                         iLoginDataLoadView!!.onGetMyProfileResult(t, null)
@@ -59,17 +60,17 @@ class DataPresenter internal constructor(context: Context) : BaseContract.Presen
 
     fun register(firstName: String, lastName: String, email: String, password: String) {
         iDataRepository!!.register(firstName, lastName, email, password).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DefaultSubscriber<UserResponseModel>() {
-                    override fun onNext(t: UserResponseModel) {
+                .subscribe(object : DefaultSubscriber<BaseResponseModel>() {
+                    override fun onNext(t: BaseResponseModel) {
                         super.onNext(t)
                         iLoginDataLoadView!!.hideLoading()
-                        iLoginDataLoadView!!.onGetMyProfileResult(t, null)
+                        iLoginDataLoadView!!.onRegisterResult(t, null)
                     }
 
                     override fun onError(e: Throwable) {
                         super.onError(e)
                         iLoginDataLoadView!!.hideLoading()
-                        iLoginDataLoadView!!.onGetMyProfileResult(null, e)
+                        iLoginDataLoadView!!.onRegisterResult(null, e)
                     }
                 })
     }

@@ -3,7 +3,7 @@ package com.github.kieuthang.login_chat.data.entity
 import com.google.gson.annotations.SerializedName
 
 
-class UserResponseModel : BaseResponseModel() {
+class UserModel : BaseResponseModel() {
     @SerializedName("id")
     var id: Int = 0
     @SerializedName("first_name")

@@ -9,8 +9,9 @@ import com.github.kieuthang.login_chat.data.common.BaseRepositoryImpl
 import com.github.kieuthang.login_chat.data.common.RestApiClient
 import com.github.kieuthang.login_chat.data.common.cache.DataCacheApiImpl
 import com.github.kieuthang.login_chat.data.entity.AccessToken
+import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
 import com.github.kieuthang.login_chat.data.entity.LoginRequest
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.UserModel
 import com.github.kieuthang.login_chat.views.common.IDataRepository
 import com.google.gson.Gson
 import io.reactivex.Observable
@@ -20,44 +21,41 @@ import retrofit2.Response
 
 
 class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataRepository {
-    override fun register(firstName: String, lastName: String, email: String, password: String): Observable<UserResponseModel> {
+
+    override fun register(firstName: String, lastName: String, email: String, password: String): Observable<BaseResponseModel> {
         return Observable.create { subscriber ->
             val apiService = RestApiClient.getClient().create(ApiService::class.java)
-            AppLog.d(AppConstants.TAG, "login START=> email:$email,password:$password")
-            val request = LoginRequest()
+
+            val request = UserModel()
             request.email = email
             request.password = password
-            val call = apiService.login(email, password)
-            call.enqueue(object : Callback<AccessToken> {
-                override fun onResponse(call: Call<AccessToken>, response: Response<AccessToken>) {
+            request.firstName = firstName
+            request.lastName = lastName
+            AppLog.d(AppConstants.TAG, "register START=> email:$email,password:$password")
+            val call = apiService.register(request)
+            call.enqueue(object : Callback<BaseResponseModel> {
+                override fun onResponse(call: Call<BaseResponseModel>, response: Response<BaseResponseModel>) {
                     val result = response.body()
                     if (result == null) {
                         subscriber.onError(Throwable())
                         return
                     }
                     val resultJson = ApplicationUtils.makeJsonObject(result)
-                    AppLog.d(AppConstants.TAG, "login success=>: $resultJson")
+                    AppLog.d(AppConstants.TAG, "register success=>: $resultJson")
 
-                    val newAccessToken = Gson().fromJson<AccessToken>(resultJson, AccessToken::class.java)
-                    val iDataCacheApi = DataCacheApiImpl(mContext)
-                    val accessToken = iDataCacheApi.getAccessToken()
-
-                    val newResultJson = ApplicationUtils.makeJsonObject(newAccessToken).toString()
-                    iDataCacheApi.saveDataToCache(AppConstants.Cache.ACCESS_TOKEN, newResultJson)
-
-                    subscriber.onNext(accessToken)
+                    subscriber.onNext(result)
                     subscriber.onComplete()
                 }
 
-                override fun onFailure(call: Call<AccessToken>, t: Throwable) {
-                    AppLog.d(AppConstants.TAG, "login onFailure: " + t.message)
+                override fun onFailure(call: Call<BaseResponseModel>, t: Throwable) {
+                    AppLog.d(AppConstants.TAG, "register onFailure: " + t.message)
                     subscriber.onError(Throwable())
                 }
             })
         }
     }
 
-    override fun getMyProfile(pullToRefresh: Boolean): Observable<UserResponseModel> {
+    override fun getMyProfile(pullToRefresh: Boolean): Observable<UserModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

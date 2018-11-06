@@ -2,11 +2,12 @@ package com.github.kieuthang.login_chat.data.common;
 
 
 import com.github.kieuthang.login_chat.data.entity.AccessToken;
+import com.github.kieuthang.login_chat.data.entity.BaseResponseModel;
+import com.github.kieuthang.login_chat.data.entity.UserModel;
 import com.github.nkzawa.socketio.androidchat.Rooms;
 
-import org.jetbrains.annotations.NotNull;
-
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -19,4 +20,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST
     Call<AccessToken> login(@Field("email") String email, @Field("password") String password);
+
+    @FormUrlEncoded
+    @POST
+    Call<BaseResponseModel> register(@Body UserModel userModel);
 }

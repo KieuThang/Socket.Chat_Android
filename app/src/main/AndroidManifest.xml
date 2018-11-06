@@ -14,7 +14,7 @@
         android:theme="@style/AppBaseTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".views.login.ActivityLogin"
+            android:name=".views.login_register.ActivityLogin"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.login.ActivitySignUp"
+            android:name=".views.login_register.ActivitySignUp"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/app_name"
             android:screenOrientation="portrait"

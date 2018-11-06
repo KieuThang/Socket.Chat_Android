@@ -15,7 +15,8 @@ import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
 import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
+import com.github.kieuthang.login_chat.data.entity.UserModel
 
 abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
     protected var mDataPresenter: DataPresenter? = null
@@ -130,7 +131,11 @@ abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
 
     }
 
-    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
+    override fun onGetMyProfileResult(t: UserModel?, throwable: Throwable?) {
+
+    }
+
+    override fun onRegisterResult(t: BaseResponseModel?, throwable: Throwable?) {
 
     }
 
