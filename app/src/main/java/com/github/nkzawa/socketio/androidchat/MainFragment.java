@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.kieuthang.login_chat.ChatApplication;
+import com.github.kieuthang.login_chat.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;

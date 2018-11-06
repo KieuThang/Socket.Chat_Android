@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.kieuthang.login_chat.R;
+
 import java.util.List;
 
 

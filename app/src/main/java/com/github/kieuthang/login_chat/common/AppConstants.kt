@@ -2,8 +2,11 @@ package com.github.kieuthang.login_chat.common
 
 
 object AppConstants {
+    @JvmField
     val TAG = "Socket.Chat_Android"
     val SUPPORTED_MAIL = "kieuducthang@gmail.com"
+    @JvmField
+    val DEBUG_MODE = true
 
     object Prefs {
         @JvmField

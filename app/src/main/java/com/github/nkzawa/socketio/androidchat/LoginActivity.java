@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.github.kieuthang.login_chat.R;
 import com.github.kieuthang.login_chat.data.common.ApiService;
 import com.github.kieuthang.login_chat.ChatApplication;
 import com.github.kieuthang.login_chat.data.common.RestApiClient;
@@ -57,7 +58,7 @@ public class LoginActivity extends Activity {
         mUsernameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == R.id.btnLogin || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
                 }
