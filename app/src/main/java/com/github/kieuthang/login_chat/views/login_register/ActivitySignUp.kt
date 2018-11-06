@@ -1,4 +1,4 @@
-package com.github.kieuthang.login_chat.views.login
+package com.github.kieuthang.login_chat.views.login_register
 
 
 import android.content.Context
@@ -10,30 +10,20 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.View
 import com.github.kieuthang.login_chat.R
-import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
 import com.github.kieuthang.login_chat.common.utils.StringUtils
 import com.github.kieuthang.login_chat.common.utils.ViewPressEffectHelper
-import com.github.kieuthang.login_chat.data.user.entity.AccessToken
-import com.github.kieuthang.login_chat.data.user.entity.BaseResponseModel
-import com.github.kieuthang.login_chat.data.user.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.AccessToken
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
-import kotlinx.android.synthetic.main.activity_forgot_pw.*
+import kotlinx.android.synthetic.main.activity_signup.*
 
-class ActivityForgotPW : BaseFragmentActivity(), ILoginDataLoadView {
-    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
-
-    }
-
-    private var mPresenter: LoginPresenter? = null
+class ActivitySignUp : BaseFragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_forgot_pw)
-        mPresenter = LoginPresenter(this)
-        mPresenter!!.bindView(this)
-        btnForgotPw.setOnClickListener { doForgotPW() }
-        ViewPressEffectHelper.attach(btnForgotPw)
+        setContentView(R.layout.activity_signup)
+        btnSignUp.setOnClickListener { doForgotPW() }
+        ViewPressEffectHelper.attach(btnSignUp)
 
         edtEmail.setOnKeyListener(View.OnKeyListener { view, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -54,7 +44,7 @@ class ActivityForgotPW : BaseFragmentActivity(), ILoginDataLoadView {
 
             override fun afterTextChanged(editable: Editable?) {
                 if (editable != null && !TextUtils.isEmpty(editable.toString())) {
-                    scrollView.scrollTo(0, btnForgotPw.bottom)
+                    scrollView.scrollTo(0, btnSignUp.bottom)
                 }
             }
         })
@@ -62,6 +52,22 @@ class ActivityForgotPW : BaseFragmentActivity(), ILoginDataLoadView {
 
     private fun doForgotPW() {
         val email = edtEmail.text.toString()
+        val firstName = edtFirstName.text.toString()
+        val lastName = edtLastName.text.toString()
+        val password = edtPassword.text.toString()
+
+        if (!TextUtils.isEmpty(firstName)) {
+            showError(getString(R.string.first_name_cannot_be_empty))
+            return
+        }
+        if (!TextUtils.isEmpty(lastName)) {
+            showError(getString(R.string.last_name_cannot_be_empty))
+            return
+        }
+        if (!TextUtils.isEmpty(password)) {
+            showError(getString(R.string.password_cannot_be_empty))
+            return
+        }
         if (!StringUtils.verifyEmail(email)) {
             showError(getString(R.string.email_address_is_not_valid))
             return
@@ -70,7 +76,7 @@ class ActivityForgotPW : BaseFragmentActivity(), ILoginDataLoadView {
             showNoNetworkError()
             return
         }
-        mPresenter!!.forgotPW(email)
+        mDataPresenter!!.register(firstName, lastName, email, password)
     }
 
     override fun showLoading() {
@@ -89,28 +95,10 @@ class ActivityForgotPW : BaseFragmentActivity(), ILoginDataLoadView {
 
     }
 
-    override fun onForgotPWResult(response: BaseResponseModel?) {
-        if (response?.code == null) {
-            showError(getString(R.string.something_went_wrong_please_try_again_later))
-            return
-        }
-        if(AppConstants.APICodeResponse.USER_DOES_NOT_EXISTED == response.code){
-            showError(getString(R.string.user_does_not_exist))
-            return
-        }
-        if(AppConstants.APICodeResponse.SUCCESS == response.code) {
-            val email = edtEmail.text.toString()
-            showToastMessage(getString(R.string.plz_check_your_email_to_reset_your_password, email))
-        }else{
-            showError(getString(R.string.something_went_wrong_please_try_again_later))
-            return
-        }
-    }
-
     companion object {
 
         fun createIntent(context: Context): Intent {
-            return Intent(context, ActivityForgotPW::class.java)
+            return Intent(context, ActivitySignUp::class.java)
         }
     }
 }

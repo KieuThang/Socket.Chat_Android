@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margin_normal"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog_dongle_info"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_default">
+
+        <LinearLayout
+            android:id="@+id/layout_package_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ic_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_dongle_invalid"
+                tools:ignore="ContentDescription" />
+
+            <com.github.kieuthang.login_chat.views.widget.SanfranciscoMediumTextView
+                android:id="@+id/tv_dialog_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_default"
+                android:layout_marginStart="@dimen/margin_default"
+                android:layout_marginEnd="@dimen/margin_default"
+                android:gravity="center"
+                android:textColor="@color/colorTextDialogTitle"
+                android:textSize="@dimen/tv_dialog_content_size"
+                android:textStyle="bold" />
+
+            <com.github.kieuthang.login_chat.views.widget.SanfranciscoMediumTextView
+                android:id="@+id/tv_sub_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_default"
+                android:layout_marginEnd="@dimen/margin_default"
+                android:layout_marginTop="@dimen/margin_small"
+                android:gravity="center"
+                android:textColor="@color/colorTextDialogContent"
+                android:textSize="@dimen/tv_dialog_sub_content_size"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.github.kieuthang.login_chat.views.widget.SFUIButton
+                android:id="@+id/btn_positive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_positive"
+                android:gravity="center"
+                android:padding="@dimen/margin_small"
+                android:text="@android:string/yes"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/btn_popup_size" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUIButton
+                android:id="@+id/btn_negative"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_default"
+                android:background="@drawable/bg_btn_negative"
+                android:gravity="center"
+                android:padding="@dimen/margin_small"
+                android:text="@android:string/yes"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/btn_popup_size" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

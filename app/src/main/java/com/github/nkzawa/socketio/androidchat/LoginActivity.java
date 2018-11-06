@@ -15,9 +15,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.github.kieuthang.login_chat.data.ApiService;
+import com.github.kieuthang.login_chat.data.common.ApiService;
 import com.github.kieuthang.login_chat.ChatApplication;
-import com.github.kieuthang.login_chat.data.RestApiClient;
+import com.github.kieuthang.login_chat.data.common.RestApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;

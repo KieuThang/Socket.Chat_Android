@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:id="@+id/layout_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_big"
+                android:gravity="center"
+                android:text="@string/sign_up"
+                android:textColor="@color/colorTextLogin"
+                android:textSize="@dimen/textLoginTitleSize" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:background="@drawable/bg_edt_email"
+                android:gravity="center_horizontal">
+
+                <com.github.kieuthang.login_chat.views.widget.SFUIEdittext
+                    android:id="@+id/edtFirstName"
+                    android:layout_width="@dimen/edit_mail_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/margin_edt_email_start"
+                    android:layout_marginEnd="@dimen/margin_tiny"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_first_name"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:maxLength="45"
+                    android:maxLines="1"
+                    android:paddingStart="@dimen/margin_medium"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/hintColorLoginText"
+                    android:textSize="@dimen/textLoginContentSize" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:background="@drawable/bg_edt_email"
+                android:gravity="center_horizontal">
+
+                <com.github.kieuthang.login_chat.views.widget.SFUIEdittext
+                    android:id="@+id/edtLastName"
+                    android:layout_width="@dimen/edit_mail_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/margin_edt_email_start"
+                    android:layout_marginEnd="@dimen/margin_tiny"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_last_name"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="45"
+                    android:maxLines="1"
+                    android:paddingStart="@dimen/margin_medium"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/hintColorLoginText"
+                    android:textSize="@dimen/textLoginContentSize" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:background="@drawable/bg_edt_email"
+                android:gravity="center_horizontal">
+
+                <com.github.kieuthang.login_chat.views.widget.SFUIEdittext
+                    android:id="@+id/edtEmail"
+                    android:layout_width="@dimen/edit_mail_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/margin_edt_email_start"
+                    android:layout_marginEnd="@dimen/margin_tiny"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_email"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="45"
+                    android:maxLines="1"
+                    android:paddingStart="@dimen/margin_medium"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/hintColorLoginText"
+                    android:textSize="@dimen/textLoginContentSize" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:background="@drawable/bg_edt_password"
+                android:gravity="center_horizontal">
+
+                <com.github.kieuthang.login_chat.views.widget.SFUIEdittext
+                    android:id="@+id/edtPassword"
+                    android:layout_width="@dimen/edit_mail_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/margin_edt_email_start"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword"
+                    android:maxLength="20"
+                    android:maxLines="1"
+                    android:paddingStart="@dimen/margin_medium"
+                    android:paddingEnd="@dimen/margin_tiny"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/hintColorLoginText"
+                    android:textSize="@dimen/textLoginContentSize" />
+            </LinearLayout>
+
+
+            <com.github.kieuthang.login_chat.views.widget.SFUIButton
+                android:id="@+id/btnSignUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:background="@drawable/bg_button_login_forgot_password"
+                android:paddingBottom="@dimen/margin_default"
+                android:src="?attr/selectableItemBackground"
+                android:text="@string/sign_up"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/textLoginContentSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tvForgotPw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/margin_big"
+                android:text="@string/forgot_password"
+                android:textColor="@color/hintColorForgotPWText"
+                android:textSize="@dimen/textForgotPWSize" />
+
+            <LinearLayout
+                android:id="@+id/layoutBlockDeleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_big"
+                android:layout_marginBottom="@dimen/margin_big"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                    android:id="@+id/tvBlockedDeleted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/margin_default"
+                    android:text="@string/your_account_is_temporarily_blocked"
+                    android:textColor="@color/textBlockedColor" />
+
+                <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                    android:id="@+id/tvContactSupporter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/margin_big"
+                    android:layout_marginTop="@dimen/margin_tiny"
+                    android:layout_marginEnd="@dimen/margin_big"
+                    android:gravity="center"
+                    android:text="@string/plz_contact_us_to_discuss_the_matter"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</RelativeLayout>

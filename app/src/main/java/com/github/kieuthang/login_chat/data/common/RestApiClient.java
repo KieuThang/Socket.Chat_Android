@@ -1,4 +1,4 @@
-package com.github.kieuthang.login_chat.data;
+package com.github.kieuthang.login_chat.data.common;
 
 import java.util.concurrent.TimeUnit;
 

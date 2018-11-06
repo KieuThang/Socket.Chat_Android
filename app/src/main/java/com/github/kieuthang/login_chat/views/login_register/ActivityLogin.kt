@@ -1,4 +1,4 @@
-package com.github.kieuthang.login_chat.views.login
+package com.github.kieuthang.login_chat.views.login_register
 
 
 import android.Manifest
@@ -13,22 +13,14 @@ import android.text.style.ClickableSpan
 import android.view.KeyEvent
 import android.view.View
 import com.github.kieuthang.login_chat.R
-import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.*
-import com.github.kieuthang.login_chat.data.common.cache.DataCacheApiImpl
-import com.github.kieuthang.login_chat.data.user.entity.AccessToken
-import com.github.kieuthang.login_chat.data.user.entity.BaseResponseModel
-import com.github.kieuthang.login_chat.data.user.entity.UserResponseModel
-import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
-import com.github.kieuthang.login_chat.views.common.IPopupDialogFragment
-import com.github.kieuthang.login_chat.views.common.PopupDialogFragment
-import com.github.kieuthang.login_chat.views.guard.new_case.ActivityGuardNewCaseNormal
-import com.github.kieuthang.login_chat.views.home.ActivityHome
+import com.github.kieuthang.login_chat.data.entity.AccessToken
+import com.github.kieuthang.login_chat.views.common.*
 import kotlinx.android.synthetic.main.activity_login.*
 
-class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
+class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
 
-    private var mLoginPresenter: LoginPresenter? = null
+    private var mLoginPresenter: DataPresenter? = null
     private val REQUEST_CODE_PERMISSION = 15123
 
     companion object {
@@ -43,7 +35,7 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        mLoginPresenter = LoginPresenter(this)
+        mLoginPresenter = DataPresenter(this)
         mLoginPresenter!!.bindView(this)
 
         btnLogin.setOnClickListener { doLogin() }
@@ -70,7 +62,7 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
             false
         })
 
-        tvForgotPw.setOnClickListener { startActivity(ActivityForgotPW.createIntent(this)) }
+        tvForgotPw.setOnClickListener { startActivity(ActivitySignUp.createIntent(this)) }
         ViewPressEffectHelper.attach(btnLogin)
         ViewPressEffectHelper.attach(tvForgotPw)
 
@@ -117,7 +109,7 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
             REQUEST_CODE_PERMISSION -> {
                 val allGranted = grantResults.none { it != PermissionChecker.PERMISSION_GRANTED }
                 if (!allGranted) {
-                    showDialog(PopupDialogFragment.Type.WARNING, 0, getString(R.string.plz_accept_the_needed_permission_first, "", false, getString(R.string.ok), "", 0, object : IPopupDialogFragment {
+                    showDialog(PopupDialogFragment.Type.WARNING, 0, getString(R.string.plz_accept_the_needed_permission_first), "", false, getString(R.string.ok), "", 0, object : IPopupDialogFragment {
                         override fun clickPositiveText(requestCode: Int) {
                             finish()
                         }
@@ -172,15 +164,6 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
             showToastMessage(getString(R.string.incorrect_email_or_password))
             return
         }
-        if (TextUtils.isEmpty(accessToken.role)) {
-            showToastMessage(getString(R.string.user_is_not_identified))
-            return
-        }
-        if (AppConstants.UserRole.GUARD == accessToken.role) {
-            startActivity(ActivityGuardNewCaseNormal.createIntent(this))
-            finish()
-            return
-        }
 
         if (!accessToken.isActive) {
             layoutBlockDeleted.visibility = View.VISIBLE
@@ -198,26 +181,5 @@ class ActivityLogin : BaseFragmentActivity(), ILoginDataLoadView {
         onHideKeyBoard(edtEmail)
         mLoginPresenter!!.getMyProfile(true)
 
-    }
-
-    override fun onForgotPWResult(response: BaseResponseModel?) {
-        showToastMessage(getString(R.string.we_sent_a_message_with_a_link_to_reset_password, edtEmail.text.toString()))
-    }
-
-    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
-        if (t?.userModel == null) {
-            showToastMessage(getString(R.string.something_went_wrong_please_try_again_later))
-            return
-        }
-
-        launchGSAServices()
-        if (AppConstants.UserRole.GUARD == t.userModel!!.role) {
-            onHideKeyBoard(edtEmail)
-            startActivity(ActivityGuardNewCaseNormal.createIntent(this))
-            finish()
-            return
-        }
-        startActivity(ActivityHome.createIntent(this))
-        finish()
     }
 }

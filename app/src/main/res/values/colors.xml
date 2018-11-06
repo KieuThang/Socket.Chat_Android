@@ -19,4 +19,12 @@
     <color name="textBlockedColor">#ff2d55</color>
     <color name="textVersionColor">#949494</color>
     <color name="hintColorLoginText">#7b8b9a</color>
+
+    <color name="colorTextDialogTitle">#5a6375</color>
+    <color name="colorTextDialogContent">#7a8394</color>
+    <color name="colorDongleInvalid">#9d0d0d</color>
+
+    <color name="colorPrimary">#1c9dd8</color>
+    <color name="colorPrimaryDark">#1c9dd8</color>
+    <color name="colorAccent">#FF4081</color>
 </resources>

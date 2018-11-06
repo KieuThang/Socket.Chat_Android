@@ -20,4 +20,6 @@
     <dimen name="textLoginContentSize">18dp</dimen>
     <dimen name="textForgotPWSize">14dp</dimen>
     <dimen name="edit_mail_width">250dp</dimen>
+    <dimen name="tv_dialog_sub_content_size">13dp</dimen>
+    <dimen name="btn_popup_size">16dp</dimen>
 </resources>

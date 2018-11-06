@@ -30,7 +30,22 @@
     <string name="email_address_is_not_valid">Email address is not valid</string>
     <string name="password_cannot_be_empty">Password cannot be empty</string>
     <string name="plz_accept_the_needed_permission_first">Please accept the needed permission first</string>
-    <string name="network_is_not_available">Network is not available</string>
-    <string name="loading">Loading...</string>
+
+    <string name="loading">Loading…</string>
     <string name="ok">OK</string>
+
+    <string name="email">Email</string>
+    <string name="enter_your_email_address">Enter your email address</string>
+    <string name="send_mail_using">Send mail using</string>
+    <string name="network_is_not_available">Network is not available</string>
+    <string name="no_email_client_installed">No email client installed</string>
+    <string name="incorrect_email_or_password">Incorrect email or password</string>
+    <string name="your_account_is_temporarily_deleted">Your account temporarily deleted</string>
+    <string name="something_went_wrong_please_try_again_later">Something went wrong. Please try again later</string>
+    <string name="register_user_successfully">Register user successfully</string>
+    <string name="hint_first_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="first_name_cannot_be_empty">First name cannot be empty</string>
+    <string name="last_name_cannot_be_empty">Last name cannot be empty</string>
 </resources>

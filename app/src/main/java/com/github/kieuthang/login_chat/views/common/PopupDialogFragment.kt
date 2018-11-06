@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
+import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.utils.ViewPressEffectHelper
 import com.github.kieuthang.login_chat.views.widget.SFUIButton
 import com.github.kieuthang.login_chat.views.widget.SanfranciscoMediumTextView
-import com.github.kieuthang.login_chat.R
 
 
 class PopupDialogFragment : DialogFragment() {

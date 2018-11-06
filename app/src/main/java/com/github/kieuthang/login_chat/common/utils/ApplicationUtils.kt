@@ -16,8 +16,6 @@ import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import java.io.IOException
 import java.lang.reflect.Modifier
 import java.util.*
@@ -25,13 +23,11 @@ import java.util.*
 object ApplicationUtils {
     private var wakeLock: PowerManager.WakeLock? = null
 
-    fun makeJsonObject(`object`: Any): JsonObject {
+    fun makeJsonObject(`object`: Any): String {
         val builder = GsonBuilder()
         builder.excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
         val gson = builder.create()
-        val json = gson.toJson(`object`)
-        val jsonParser = JsonParser()
-        return jsonParser.parse(json) as JsonObject
+        return gson.toJson(`object`)
     }
 
     fun contactUsByMail(context: Context) {
@@ -50,51 +46,6 @@ object ApplicationUtils {
 //        return manager.getRunningServices(Integer.MAX_VALUE).any { serviceClass.name == it.service.className }
 //    }
 
-    fun generateCustomChooserIntent(context: Context, prototype: Intent?): Intent {
-        val forbiddenChoices = ArrayList<String>()
-        forbiddenChoices.add(AppConstants.GOOLGE_PHOTOS_PACKAGE)
-        forbiddenChoices.add(AppConstants.GOOLGE_PLUS_PACKAGE)
-
-        val targetedShareIntents = ArrayList<Intent>()
-        val intentMetaInfo = ArrayList<HashMap<String, String>>()
-        val chooserIntent: Intent
-
-        val resInfo = context.packageManager.queryIntentActivities(prototype, 0)
-
-        if (!resInfo.isEmpty()) {
-            for (resolveInfo in resInfo) {
-                AppLog.d(AppConstants.TAG, "packageName:" + resolveInfo.activityInfo.packageName + ",className:" + resolveInfo.activityInfo.name
-                        + ",simpleName:" + resolveInfo.activityInfo.loadLabel(context.packageManager).toString())
-                if (resolveInfo.activityInfo == null || forbiddenChoices.contains(resolveInfo.activityInfo.packageName))
-                    continue
-                val simpleName = resolveInfo.activityInfo.loadLabel(context.packageManager).toString()
-                val info = HashMap<String, String>()
-                info.put("packageName", resolveInfo.activityInfo.packageName)
-                info.put("className", resolveInfo.activityInfo.name)
-                info.put("simpleName", if (TextUtils.isEmpty(simpleName)) "Crop picture" else simpleName)
-                intentMetaInfo.add(info)
-            }
-
-            if (!intentMetaInfo.isEmpty()) {
-
-                // create the custom intent list
-                for (metaInfo in intentMetaInfo) {
-                    val targetedShareIntent = prototype!!.clone() as Intent
-                    targetedShareIntent.putExtra("AppName", "Crop picture")
-                    targetedShareIntent.putExtra(Intent.EXTRA_TITLE, "Crop picture")
-                    targetedShareIntent.`package` = metaInfo["packageName"]
-                    targetedShareIntent.setClassName(metaInfo["packageName"], metaInfo["className"])
-                    targetedShareIntents.add(targetedShareIntent)
-                }
-
-                chooserIntent = Intent.createChooser(targetedShareIntents.removeAt(targetedShareIntents.size - 1), context.getString(R.string.complete_action_using))
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toTypedArray<Parcelable>())
-                return chooserIntent
-            }
-        }
-
-        return Intent.createChooser(prototype, context.getString(R.string.complete_action_using))
-    }
 
 
     fun isMyServiceRunning(serviceClass: Class<*>, context: Context): Boolean {
@@ -145,12 +96,6 @@ object ApplicationUtils {
         return json
     }
 
-    fun unlockBrightAndTurnonScreen(context: Activity) {
-        turnOnCPUWithTimeout(context)
-        unlockKeyBoard(context)
-        turnOnScreen(context)
-    }
-
     fun turnOnScreen(context: Activity) {
         val window = context.window
         window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -168,9 +113,4 @@ object ApplicationUtils {
         }
     }
 
-    fun unlockKeyBoard(context: Context) {
-        val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        val keyguardLock = keyguardManager.newKeyguardLock("TAG")
-        keyguardLock.disableKeyguard()
-    }
 }
