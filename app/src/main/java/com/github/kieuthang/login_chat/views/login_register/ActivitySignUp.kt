@@ -14,8 +14,7 @@ import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
 import com.github.kieuthang.login_chat.common.utils.StringUtils
 import com.github.kieuthang.login_chat.common.utils.ViewPressEffectHelper
-import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.BaseResponseModel
+import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
 import com.github.kieuthang.login_chat.views.ActivityHome
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
 import kotlinx.android.synthetic.main.activity_signup.*
@@ -98,11 +97,7 @@ class ActivitySignUp : BaseFragmentActivity() {
         showToastMessage(errorMessage)
     }
 
-    override fun onLoginResult(accessToken: AccessToken?) {
-
-    }
-
-    override fun onRegisterResult(t: AccessToken?, throwable: Throwable?) {
+    override fun onRegisterResult(t: AccessTokenResponseModel?, throwable: Throwable?) {
         super.onRegisterResult(t, throwable)
         if(throwable != null){
             showError(getString(R.string.something_went_wrong_please_try_again_later))

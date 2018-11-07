@@ -15,7 +15,8 @@ import android.view.View
 import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.utils.*
-import com.github.kieuthang.login_chat.data.entity.AccessToken
+import com.github.kieuthang.login_chat.data.common.cache.DataCacheApiImpl
+import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
 import com.github.kieuthang.login_chat.views.ActivityHome
 import com.github.kieuthang.login_chat.views.common.*
 import kotlinx.android.synthetic.main.activity_login.*
@@ -91,7 +92,16 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
         tvContactSupporter.movementMethod = LinkMovementMethod.getInstance()
 
         requestNeededPermissions()
+        setupData()
+    }
 
+    private fun setupData() {
+        val iDataCacheApi = DataCacheApiImpl(this)
+        val userModel = iDataCacheApi.getUserModel()
+        if (userModel != null) {
+            startActivity(ActivityHome.createIntent(this))
+            finish()
+        }
     }
 
     private fun requestNeededPermissions(): Boolean {
@@ -164,12 +174,18 @@ class ActivityLogin : BaseFragmentActivity(), IDataLoadView {
         showToastMessage(errorMessage)
     }
 
-    override fun onLoginResult(accessToken: AccessToken?) {
-        if (accessToken == null || accessToken.code != AppConstants.APICodeResponse.SUCCESS) {
-            var message = if (accessToken == null) null else accessToken.message
+    override fun onLoginResult(t: AccessTokenResponseModel?) {
+        if (t == null || t.code != AppConstants.APICodeResponse.SUCCESS) {
+            var message = t?.message
             if (TextUtils.isEmpty(message))
                 message = getString(R.string.incorrect_email_or_password)
             showToastMessage(message.toString())
+            return
+        }
+
+        val accessToken = t.accessToken
+        if (accessToken == null) {
+            showToastMessage(getString(R.string.incorrect_email_or_password))
             return
         }
 

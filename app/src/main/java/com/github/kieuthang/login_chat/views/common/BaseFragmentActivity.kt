@@ -14,8 +14,10 @@ import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
-import com.github.kieuthang.login_chat.data.entity.AccessToken
-import com.github.kieuthang.login_chat.data.entity.UserModel
+import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
+import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
+import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
+import com.github.kieuthang.login_chat.data.entity.UserResponseModel
 
 abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
     protected var mDataPresenter: DataPresenter? = null
@@ -126,15 +128,23 @@ abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
     }
 
 
-    override fun onLoginResult(accessToken: AccessToken?) {
+    override fun onLoginResult(accessToken: AccessTokenResponseModel?) {
 
     }
 
-    override fun onGetMyProfileResult(t: UserModel?, throwable: Throwable?) {
+    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
 
     }
 
-    override fun onRegisterResult(t: AccessToken?, throwable: Throwable?) {
+    override fun onRegisterResult(t: AccessTokenResponseModel?, throwable: Throwable?) {
+
+    }
+
+    override fun onGetRoomsResult(t: RoomsResponseModel?, throwable: Throwable?) {
+
+    }
+
+    override fun onAddRoomResult(t: RoomResponseModel?, throwable: Throwable?) {
 
     }
 
