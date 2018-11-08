@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/margin_default"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/layout_container_left"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/marginItemChat"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/layout_chat_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_user_info_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@android:color/black"
+                android:textColorLink="@android:color/white"
+                android:textSize="@dimen/tvChatUserInfoSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_message_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@android:color/black"
+                android:textColorLink="@android:color/holo_blue_bright"
+                android:textSize="@dimen/textMessageContentSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_time_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@color/colorTextAlarmChatTime"
+                android:textSize="@dimen/tvChatUserInfoSize" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_container_right"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/marginItemChat"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/layout_chat_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_user_info_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@android:color/white"
+                android:textColorLink="@color/colorNoAlarm"
+                android:textSize="@dimen/tvChatUserInfoSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_message_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@android:color/white"
+                android:textColorLink="@color/colorNoAlarm"
+                android:textSize="@dimen/textMessageContentSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tv_time_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/tvChatUserInfoSize" />
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

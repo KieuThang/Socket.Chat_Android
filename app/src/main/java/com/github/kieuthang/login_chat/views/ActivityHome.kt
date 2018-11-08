@@ -3,8 +3,10 @@ package com.github.kieuthang.login_chat.views
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.widget.ArrayAdapter
 import com.github.kieuthang.login_chat.R
+import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
 import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
 import com.github.kieuthang.login_chat.data.entity.UserModel
 import com.github.kieuthang.login_chat.data.entity.UserResponseModel
@@ -18,6 +20,22 @@ class ActivityHome : BaseFragmentActivity() {
         setContentView(R.layout.activity_home)
 
         mDataPresenter!!.getMyProfile(true)
+
+        btnJoinRoom.setOnClickListener {
+            val selectedRoom = spinner.selectedItem as String
+            startActivity(ActivityChat.createIntent(this, selectedRoom))
+            finish()
+        }
+
+        btnCreateRoom.setOnClickListener {
+            val roomName = edtRoomName.text.toString()
+            if (TextUtils.isEmpty(roomName)) {
+                showToastMessage(getString(R.string.room_name_cannot_be_empty))
+                return@setOnClickListener
+            }
+
+            mDataPresenter!!.addRoom(roomName)
+        }
     }
 
     override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
@@ -30,6 +48,17 @@ class ActivityHome : BaseFragmentActivity() {
         updateUI()
 
         mDataPresenter!!.getRooms()
+    }
+
+    override fun onAddRoomResult(t: RoomResponseModel?, throwable: Throwable?) {
+        super.onAddRoomResult(t, throwable)
+        if (throwable != null || t == null || t.room == null) {
+            showToastMessage(getString(R.string.something_went_wrong_please_try_again_later))
+            return
+        }
+
+        startActivity(ActivityChat.createIntent(this, t.room!!.name!!))
+        finish()
     }
 
     override fun onGetRoomsResult(t: RoomsResponseModel?, throwable: Throwable?) {
@@ -54,7 +83,6 @@ class ActivityHome : BaseFragmentActivity() {
             tvUserName.text = "Welcome:  $userName"
         }
     }
-
 
     companion object {
         fun createIntent(context: Context): Intent {

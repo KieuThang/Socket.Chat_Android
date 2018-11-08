@@ -48,6 +48,11 @@
     <string name="sign_up">Sign Up</string>
     <string name="first_name_cannot_be_empty">First name cannot be empty</string>
     <string name="last_name_cannot_be_empty">Last name cannot be empty</string>
-    <string name="no_account_create_new"><![CDATA[<u>No Account? Create New</u>]]></string>
-    <string name="go_to_login"><![CDATA[<u>Go to Login</u>]]></string>
+    <string name="no_account_create_new"><u>No Account? Create New</u></string>
+    <string name="go_to_login"><u>Go to Login</u></string>
+    <string name="hint_room_name">Enter room name</string>
+    <string name="create_and_join"><![CDATA[Create & Join]]></string>
+    <string name="chat">Chat</string>
+    <string name="your_message">Your message</string>
+    <string name="room_name_cannot_be_empty">Room name cannot be empty</string>
 </resources>

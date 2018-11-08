@@ -33,6 +33,7 @@ public interface ApiService {
     @GET("rooms/getRooms")
     Call<RoomsResponseModel> getRooms(@Header("token") String token);
 
+    @FormUrlEncoded
     @POST("rooms/addRoom")
     Call<RoomResponseModel> addRoom(@Header("token") String token, @Field("name") String name);
 }

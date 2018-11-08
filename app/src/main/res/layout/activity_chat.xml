@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/actionbar_home" />
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/appBarLayout"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/layoutAlarmInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_alarm_info"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tvRoomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorTextAlarmInfo"
+                android:textSize="@dimen/textAlarmInoSize" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUITextView
+                android:id="@+id/tvAlarmLastPosition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" 18:30, 24.04.2018"
+                android:textColor="@color/colorTextAlarmInfo"
+                android:textSize="@dimen/textAlarmInoSize" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/layoutSendMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_default"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:background="@drawable/bg_edt_enter_chat">
+
+            <ImageButton
+                android:id="@+id/btnSendMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:padding="@dimen/margin_medium"
+                android:background="@drawable/btn_send_message_red"
+                tools:ignore="ContentDescription" />
+
+            <com.github.kieuthang.login_chat.views.widget.SFUIEdittext
+                android:id="@+id/edtSendMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_toStartOf="@id/btnSendMessage"
+                android:background="@android:color/transparent"
+                android:hint="@string/your_message"
+                android:textColor="@android:color/black"
+                android:textColorHint="@color/colorTextBtnGrey"
+                android:textSize="@dimen/textSendMessageSize" />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvChat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/layoutSendMessage"
+            android:layout_below="@id/layoutAlarmInfo"
+            android:layout_marginBottom="@dimen/margin_medium" />
+    </RelativeLayout>
+</RelativeLayout>

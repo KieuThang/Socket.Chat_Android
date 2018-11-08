@@ -22,4 +22,15 @@
     <dimen name="edit_mail_width">250dp</dimen>
     <dimen name="tv_dialog_sub_content_size">13dp</dimen>
     <dimen name="btn_popup_size">16dp</dimen>
+    <dimen name="textTitleSize">18dp</dimen>
+    <dimen name="text_back_padding_drawable">1dp</dimen>
+    <dimen name="actionbar_btn_margin">13dp</dimen>
+
+    <dimen name="layoutNavigationWidth">280dp</dimen>
+    <dimen name="textAlarmInoSize">12dp</dimen>
+    <dimen name="textSendMessageSize">14dp</dimen>
+    <dimen name="tvChatUserInfoSize">11dp</dimen>
+    <dimen name="textMessageContentSize">15dp</dimen>
+    <dimen name="marginItemChat">100dp</dimen>
+    <dimen name="action_bar_height">45dp</dimen>
 </resources>

@@ -27,4 +27,10 @@
     <color name="colorPrimary">#1c9dd8</color>
     <color name="colorPrimaryDark">#1c9dd8</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorTextAlarmInfo">#f4516b</color>
+    <color name="colorTextBtnGrey">#454c5d</color>
+    <color name="colorTextAlarmChatTime">#858e99</color>
+    <color name="colorNoAlarm">#1c9dd8</color>
+    <color name="colorActiveAlarm">#ec2b51</color>
 </resources>

@@ -54,7 +54,7 @@ public class LoginActivity extends Activity {
         mSocket = app.getSocket();
 
         // Set up the login form.
-        mUsernameView = (EditText) findViewById(R.id.username_input);
+        mUsernameView = findViewById(R.id.username_input);
         mUsernameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -66,7 +66,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-        Button signInButton = (Button) findViewById(R.id.sign_in_button);
+        Button signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,10 +74,10 @@ public class LoginActivity extends Activity {
             }
         });
 
-        mSpinner = (Spinner) findViewById(R.id.spinner);
+        mSpinner = findViewById(R.id.spinner);
 
         mSocket.on("server__join_room_welcome", onLogin);
-        ApiService apiService = RestApiClient.getClient().create(ApiService.class);
+        ApiService apiService = RestApiClient.INSTANCE.getClient().create(ApiService.class);
         Call<Rooms> call = apiService.getRooms();
         call.enqueue(new Callback<Rooms>() {
             @Override

@@ -19,7 +19,7 @@ import retrofit2.Response
 class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataRepository {
     override fun getRooms(): Observable<RoomsResponseModel> {
         return Observable.create { subscriber ->
-            val apiService = RestApiClient.getClient().create(ApiService::class.java)
+            val apiService = RestApiClient.client.create(ApiService::class.java)
 
             val iDataCacheApi = DataCacheApiImpl(mContext)
             val accessToken = iDataCacheApi.getAccessToken()
@@ -54,7 +54,7 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
 
     override fun addRoom(name: String): Observable<RoomResponseModel> {
         return Observable.create { subscriber ->
-            val apiService = RestApiClient.getClient().create(ApiService::class.java)
+            val apiService = RestApiClient.client.create(ApiService::class.java)
             val iDataCacheApi = DataCacheApiImpl(mContext)
             val accessToken = iDataCacheApi.getAccessToken()
             if (accessToken == null) {
@@ -89,7 +89,7 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
 
     override fun register(firstName: String, lastName: String, email: String, password: String): Observable<AccessTokenResponseModel> {
         return Observable.create { subscriber ->
-            val apiService = RestApiClient.getClient().create(ApiService::class.java)
+            val apiService = RestApiClient.client.create(ApiService::class.java)
 
             val request = UserModel()
             request.email = email
@@ -126,7 +126,7 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
 
     override fun getMyProfile(pullToRefresh: Boolean): Observable<UserResponseModel> {
         return Observable.create { subscriber ->
-            val apiService = RestApiClient.getClient().create(ApiService::class.java)
+            val apiService = RestApiClient.client.create(ApiService::class.java)
             val iDataCacheApi = DataCacheApiImpl(mContext)
             val accessToken = iDataCacheApi.getAccessToken()
             if (accessToken == null) {
@@ -170,7 +170,7 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
     override fun login(email: String, password: String): Observable<AccessTokenResponseModel> {
 
         return Observable.create { subscriber ->
-            val apiService = RestApiClient.getClient().create(ApiService::class.java)
+            val apiService = RestApiClient.client.create(ApiService::class.java)
             AppLog.d(AppConstants.TAG, "login START=> email:$email,password:$password")
             val request = LoginRequest()
             request.email = email
