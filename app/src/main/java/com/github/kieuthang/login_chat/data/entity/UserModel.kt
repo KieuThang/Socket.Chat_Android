@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 class UserModel : BaseResponseModel() {
     @SerializedName("id")
-    var id: Int = 0
+    var id: Long = 0
     @SerializedName("first_name")
     var firstName: String? = null
     @SerializedName("last_name")

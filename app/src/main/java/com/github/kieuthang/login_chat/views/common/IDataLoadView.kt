@@ -1,9 +1,6 @@
 package com.github.kieuthang.login_chat.views.common
 
-import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.*
 
 interface IDataLoadView : BaseContract.View {
     fun onLoginResult(accessToken: AccessTokenResponseModel?)
@@ -15,4 +12,6 @@ interface IDataLoadView : BaseContract.View {
     fun onGetRoomsResult(t: RoomsResponseModel?, throwable: Throwable?)
 
     fun onAddRoomResult(t: RoomResponseModel?, throwable: Throwable?)
+
+    fun onGetChatHistoryResult(t: MessagesResponseModel?, throwable: Throwable?)
 }

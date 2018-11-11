@@ -22,30 +22,6 @@
         android:background="@android:color/white"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/layoutAlarmInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_chat_alarm_info"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <com.github.kieuthang.login_chat.views.widget.SFUITextView
-                android:id="@+id/tvRoomName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorTextAlarmInfo"
-                android:textSize="@dimen/textAlarmInoSize" />
-
-            <com.github.kieuthang.login_chat.views.widget.SFUITextView
-                android:id="@+id/tvAlarmLastPosition"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" 18:30, 24.04.2018"
-                android:textColor="@color/colorTextAlarmInfo"
-                android:textSize="@dimen/textAlarmInoSize" />
-        </LinearLayout>
-
         <RelativeLayout
             android:id="@+id/layoutSendMessage"
             android:layout_width="match_parent"
@@ -88,7 +64,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/layoutSendMessage"
-            android:layout_below="@id/layoutAlarmInfo"
             android:layout_marginBottom="@dimen/margin_medium" />
     </RelativeLayout>
 </RelativeLayout>

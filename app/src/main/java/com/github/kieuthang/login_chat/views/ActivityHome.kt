@@ -6,15 +6,13 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.widget.ArrayAdapter
 import com.github.kieuthang.login_chat.R
-import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
-import com.github.kieuthang.login_chat.data.entity.UserModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.*
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
 import kotlinx.android.synthetic.main.activity_home.*
 
 class ActivityHome : BaseFragmentActivity() {
     private var mUserModel: UserModel? = null
+    private var mRooms: ArrayList<RoomModel>? = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -22,7 +20,18 @@ class ActivityHome : BaseFragmentActivity() {
         mDataPresenter!!.getMyProfile(true)
 
         btnJoinRoom.setOnClickListener {
-            val selectedRoom = spinner.selectedItem as String
+            val selectedRoomName = spinner.selectedItem as String
+            var selectedRoom: RoomModel? = null
+            for(room in mRooms!!){
+                if(room.name == selectedRoomName){
+                    selectedRoom = room
+                    break
+                }
+            }
+            if(selectedRoom == null){
+                showError(getString(R.string.something_went_wrong_please_try_again_later))
+                return@setOnClickListener
+            }
             startActivity(ActivityChat.createIntent(this, selectedRoom))
             finish()
         }
@@ -57,7 +66,7 @@ class ActivityHome : BaseFragmentActivity() {
             return
         }
 
-        startActivity(ActivityChat.createIntent(this, t.room!!.name!!))
+        startActivity(ActivityChat.createIntent(this, t.room!!))
         finish()
     }
 
@@ -69,6 +78,7 @@ class ActivityHome : BaseFragmentActivity() {
         }
 
         //create a list of items for the spinner.
+        mRooms = t.rooms
         val items: ArrayList<String> = ArrayList()
         for (room in t.rooms!!) {
             items.add(room.name!!)

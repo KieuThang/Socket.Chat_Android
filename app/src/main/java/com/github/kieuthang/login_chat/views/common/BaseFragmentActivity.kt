@@ -14,10 +14,10 @@ import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.NetworkUtils
-import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.common.cache.DataCacheApiImpl
+import com.github.kieuthang.login_chat.data.common.exception.MissingCredentialsException
+import com.github.kieuthang.login_chat.data.entity.*
+import com.github.kieuthang.login_chat.views.login_register.ActivityLogin
 
 abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
     protected var mDataPresenter: DataPresenter? = null
@@ -127,25 +127,49 @@ abstract class BaseFragmentActivity : AppCompatActivity(), IDataLoadView {
         }
     }
 
-
     override fun onLoginResult(accessToken: AccessTokenResponseModel?) {
 
     }
 
-    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
+    private fun verifyError(throwable: Throwable) {
+        if (throwable is MissingCredentialsException) {
+            val iDataCacheApi = DataCacheApiImpl(this)
+            iDataCacheApi.clearCache(AppConstants.Cache.USER_MODEL)
+            iDataCacheApi.clearCache(AppConstants.Cache.ACCESS_TOKEN)
 
+            startActivity(ActivityLogin.createLoginNewTaskIntent(this))
+            finish()
+        }
     }
 
     override fun onRegisterResult(t: AccessTokenResponseModel?, throwable: Throwable?) {
-
+        if (throwable != null) {
+            verifyError(throwable)
+        }
     }
 
     override fun onGetRoomsResult(t: RoomsResponseModel?, throwable: Throwable?) {
-
+        if (throwable != null) {
+            verifyError(throwable)
+        }
     }
 
     override fun onAddRoomResult(t: RoomResponseModel?, throwable: Throwable?) {
+        if (throwable != null) {
+            verifyError(throwable)
+        }
+    }
 
+    override fun onGetMyProfileResult(t: UserResponseModel?, throwable: Throwable?) {
+        if (throwable != null) {
+            verifyError(throwable)
+        }
+    }
+
+    override fun onGetChatHistoryResult(t: MessagesResponseModel?, throwable: Throwable?) {
+        if (throwable != null) {
+            verifyError(throwable)
+        }
     }
 
     override fun showLoading() {

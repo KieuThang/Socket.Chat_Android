@@ -3,6 +3,7 @@ package com.github.kieuthang.login_chat.views
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.text.util.Linkify
@@ -18,21 +19,21 @@ import com.github.kieuthang.login_chat.R
 import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.AppConstants.TAG
 import com.github.kieuthang.login_chat.common.log.AppLog
-import com.github.kieuthang.login_chat.common.utils.TimeUtils
-import com.github.kieuthang.login_chat.data.entity.Message
-import com.github.kieuthang.login_chat.data.entity.UserModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.common.utils.ApplicationUtils
+import com.github.kieuthang.login_chat.data.entity.*
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
 import com.github.kieuthang.login_chat.views.widget.SFUITextView
+import com.google.gson.Gson
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import kotlinx.android.synthetic.main.actionbar_home.*
 import kotlinx.android.synthetic.main.activity_chat.*
 import org.apache.commons.lang3.StringEscapeUtils
 import org.json.JSONException
 import org.json.JSONObject
 
 class ActivityChat : BaseFragmentActivity() {
-    private var mRoomName: String? = null
+    private var mRoomModel: RoomModel? = null
     private var mSocket: Socket? = null
 
     private val VIEW_TYPE_ITEM = 0
@@ -46,10 +47,13 @@ class ActivityChat : BaseFragmentActivity() {
     private var mUserModel: UserModel? = null
     private var mUsername: String? = null
 
+    private var mAdapter: ChatAdapter? = null
+    private var mLinearLayout: LinearLayoutManager? = null
+
     companion object {
-        fun createIntent(context: Context, roomName: String): Intent {
+        fun createIntent(context: Context, roomModel: RoomModel): Intent {
             val intent = Intent(context, ActivityChat::class.java)
-            intent.putExtra("room_name", roomName)
+            intent.putExtra("room", roomModel)
             return intent
         }
     }
@@ -58,8 +62,8 @@ class ActivityChat : BaseFragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_drawer)
 
-        mRoomName = intent.getStringExtra("room_name")
-        if (TextUtils.isEmpty(mRoomName)) {
+        mRoomModel = intent.getSerializableExtra("room") as RoomModel?
+        if (mRoomModel == null) {
             showError(getString(R.string.something_went_wrong_please_try_again_later))
             finish()
             return
@@ -70,32 +74,38 @@ class ActivityChat : BaseFragmentActivity() {
     }
 
     private fun setupLayout() {
+        mLinearLayout = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+        rvChat.layoutManager = mLinearLayout
+        mAdapter = ChatAdapter()
+        rvChat.adapter = mAdapter
         btnSendMessage.setOnClickListener {
             val message = edtSendMessage.text.toString()
             if (TextUtils.isEmpty(message))
                 return@setOnClickListener
             sendMessage(message)
         }
+
+        tvTitle.text = mRoomModel!!.name
     }
 
-    private fun sendMessage(message: String) {
+    private fun sendMessage(msg: String) {
         if (null == mUsername) return
         if (!mSocket!!.connected()) return
 
         mTyping = false
+        val message = Message()
+        message.sentById = mUserModel!!.id
+        message.sentByName = mUserModel!!.firstName + " " + mUserModel!!.lastName
+        message.message = msg
+        // message.sentOn = System.currentTimeMillis()
+        message.roomId = mRoomModel!!.id
+        message.roomName = mRoomModel!!.name
 
-        //addMessage(mUsername, message)
-        val jsonObject = JSONObject()
-        try {
-            jsonObject.put("username", mUsername)
-            jsonObject.put("message", message)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
+        val content = ApplicationUtils.makeJsonObject(message)
 
-
+        AppLog.d(AppConstants.TAG, "client__sent_message: $content")
         // perform the sending message attempt.
-        mSocket!!.emit("client__sent_message", jsonObject.toString())
+        mSocket!!.emit("client__sent_message", content)
     }
 
     private fun setupData() {
@@ -123,16 +133,43 @@ class ActivityChat : BaseFragmentActivity() {
         if (t?.userModel != null) {
             mUserModel = t.userModel
             mUsername = mUserModel!!.firstName + " " + mUserModel!!.lastName
+
+            mSocket!!.emit("client__login", mUsername, mRoomModel!!.name)
+            mDataPresenter!!.getChatHistory(mRoomModel!!.id)
         }
+    }
+
+    override fun onGetChatHistoryResult(t: MessagesResponseModel?, throwable: Throwable?) {
+        super.onGetChatHistoryResult(t, throwable)
+
+        if (t?.messages == null) {
+            showError(getString(R.string.something_went_wrong_please_try_again_later))
+            return
+        }
+        mMessage.clear()
+        mMessage.addAll(t.messages!!)
+        mAdapter!!.notifyDataSetChanged()
+        mLinearLayout!!.scrollToPositionWithOffset(mMessage.size - 1, 10)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
+        mSocket!!.disconnect()
+
+        mSocket!!.off(Socket.EVENT_CONNECT, onConnect)
         mSocket!!.off("server__new_user_joined", onLogin)
+        mSocket!!.off("server___user_disconnect", onDisconnect)
+        mSocket!!.off(Socket.EVENT_CONNECT_ERROR, onConnectError)
+        mSocket!!.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError)
+        mSocket!!.off("server__sent_message", onNewMessage)
+        mSocket!!.off("server__new_user_joined", onUserJoined)
+        mSocket!!.off("server__user_left", onUserLeft)
+        mSocket!!.off("server__user_typing", onTyping)
+        mSocket!!.off("server__user_stop_typing", onStopTyping)
     }
 
-    private val onLogin = Emitter.Listener { args ->
+    private var onLogin = Emitter.Listener { args ->
         val data = args[0] as JSONObject
 
         val numUsers: Int
@@ -144,7 +181,7 @@ class ActivityChat : BaseFragmentActivity() {
         AppLog.d(AppConstants.TAG, "numUsers: $numUsers")
     }
 
-    private val onConnect = Emitter.Listener {
+    private var onConnect = Emitter.Listener {
         runOnUiThread {
             if (!isConnected) {
                 if (null != mUsername)
@@ -155,41 +192,39 @@ class ActivityChat : BaseFragmentActivity() {
         }
     }
 
-    private val onDisconnect = Emitter.Listener {
-        AppLog.d(TAG, "diconnected")
+    private var onDisconnect = Emitter.Listener {
+        AppLog.d(TAG, "disconnected")
         runOnUiThread {
             isConnected = false
             showToastMessage(getString(R.string.disconnect))
         }
     }
 
-    private val onConnectError = Emitter.Listener {
+    private var onConnectError = Emitter.Listener {
         runOnUiThread {
             showToastMessage(getString(R.string.error_connect))
         }
     }
 
-    private val onNewMessage = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
-            val data = args[0] as JSONObject
-            val username: String
-            val message: String
-            try {
-                username = data.getString("username")
-                message = data.getString("message")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
-
-//            removeTyping(username)
-//            if (TextUtils.equals(mUsername, username))
-//                return@Runnable
-//            addMessage(username, message)
-        })
+    private var onNewMessage = Emitter.Listener { args ->
+        AppLog.d(AppConstants.TAG, "onNewMessage:=======2222:" + args.toString())
+        runOnUiThread {
+            val data = args[0] as String
+            val message = Gson().fromJson<Message>(data, Message::class.java)
+            AppLog.d(AppConstants.TAG, "onNewMessage:" + data)
+            addMessage(message)
+        }
     }
 
-    private val onUserJoined = Emitter.Listener { args ->
+    private fun addMessage(message: Message?) {
+        if (message == null)
+            return
+        mMessage.add(message)
+        mAdapter!!.notifyItemInserted(mMessage.size - 1)
+        mLinearLayout!!.scrollToPositionWithOffset(mMessage.size - 1, 10)
+    }
+
+    private var onUserJoined = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val username: String
@@ -207,7 +242,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onUserLeft = Emitter.Listener { args ->
+    private var onUserLeft = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val username: String
@@ -226,7 +261,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onTyping = Emitter.Listener { args ->
+    private var onTyping = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val username: String
@@ -243,7 +278,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onStopTyping = Emitter.Listener { args ->
+    private var onStopTyping = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val username: String
@@ -258,7 +293,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onUpdateRoom = Emitter.Listener { args ->
+    private var onUpdateRoom = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val username: String
@@ -276,7 +311,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onJoinRoomWelcome = Emitter.Listener { args ->
+    private var onJoinRoomWelcome = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
             val room: String
@@ -292,7 +327,7 @@ class ActivityChat : BaseFragmentActivity() {
         })
     }
 
-    private val onTypingTimeout = Runnable {
+    private var onTypingTimeout = Runnable {
         if (!mTyping) return@Runnable
 
         mTyping = false
@@ -366,11 +401,13 @@ class ActivityChat : BaseFragmentActivity() {
                     message.message = message.message!!.trim()
                 tvMessageLeft.text = StringEscapeUtils.unescapeJava(message.message)
                 tvMessageRight.text = StringEscapeUtils.unescapeJava(message.message)
-                tvUserInfoLeft.text = message.createdByName
+                tvUserInfoLeft.text = message.sentByName
 
-                tvUserInfoRight.text = message.createdByName
-                tvTimeLeft.text = TimeUtils.convertChatItemDateTime(message.sentOn)
-                tvTimeRight.text = TimeUtils.convertChatItemDateTime(message.sentOn)
+                tvUserInfoRight.text = message.sentByName
+//                tvTimeLeft.text = TimeUtils.convertChatItemDateTime(message.sentOn)
+//                tvTimeRight.text = TimeUtils.convertChatItemDateTime(message.sentOn)
+                tvTimeLeft.text = message.sentOn
+                tvTimeRight.text = message.sentOn
             }
 
             private fun updateChatStyle(message: Message) {

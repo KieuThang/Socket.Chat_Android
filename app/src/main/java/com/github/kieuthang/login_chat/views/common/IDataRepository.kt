@@ -1,9 +1,6 @@
 package com.github.kieuthang.login_chat.views.common
 
-import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.*
 import io.reactivex.Observable
 
 
@@ -17,4 +14,6 @@ interface IDataRepository {
     fun getRooms(): Observable<RoomsResponseModel>
 
     fun addRoom(name: String): Observable<RoomResponseModel>
+
+    fun getChatHistory(id: Long): Observable<MessagesResponseModel>
 }

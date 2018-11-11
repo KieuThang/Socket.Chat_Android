@@ -16,7 +16,7 @@ open class BaseRepositoryImpl(protected var mContext: Context) {
                 if (errorBody != null) {
                     val errorMessage = errorBody.string()
                     AppLog.d(AppConstants.TAG, "hasError:$code,errorBody:$errorMessage")
-                    if (code == AppConstants.APICodeResponse.USER_DOES_NOT_EXISTED || code == AppConstants.APICodeResponse.CODE_ERROR_401 || !TextUtils.isEmpty(errorMessage)) {
+                    if (code == AppConstants.APICodeResponse.USER_DOES_NOT_EXISTED || code == AppConstants.APICodeResponse.CODE_ERROR_401 || code == AppConstants.APICodeResponse.CODE_ERROR_500 || !TextUtils.isEmpty(errorMessage)) {
                         return MissingCredentialsException()
                     }
                 }

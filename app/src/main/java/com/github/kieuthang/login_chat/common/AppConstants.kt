@@ -36,6 +36,7 @@ object AppConstants {
         val USER_DOES_NOT_EXISTED = 3
         @JvmField
         val CODE_ERROR_401 = 401
+        val CODE_ERROR_500 = 500
     }
 
 }

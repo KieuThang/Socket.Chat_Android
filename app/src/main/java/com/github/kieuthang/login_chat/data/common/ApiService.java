@@ -2,6 +2,7 @@ package com.github.kieuthang.login_chat.data.common;
 
 
 import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel;
+import com.github.kieuthang.login_chat.data.entity.MessagesResponseModel;
 import com.github.kieuthang.login_chat.data.entity.RoomResponseModel;
 import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel;
 import com.github.kieuthang.login_chat.data.entity.UserModel;
@@ -36,4 +37,7 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("rooms/addRoom")
     Call<RoomResponseModel> addRoom(@Header("token") String token, @Field("name") String name);
+
+    @GET("chats/getChatHistory")
+    Call<MessagesResponseModel> getChatHistory(@Header("token") String token);
 }

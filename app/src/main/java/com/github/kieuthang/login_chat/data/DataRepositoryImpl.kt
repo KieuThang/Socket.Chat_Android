@@ -15,8 +15,49 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
 class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataRepository {
+
+    override fun getChatHistory(id: Long): Observable<MessagesResponseModel> {
+        return Observable.create { subscriber ->
+            val apiService = RestApiClient.client.create(ApiService::class.java)
+
+            val iDataCacheApi = DataCacheApiImpl(mContext)
+            val accessToken = iDataCacheApi.getAccessToken()
+            if (accessToken == null) {
+                subscriber.onError(Throwable())
+                return@create
+            }
+            AppLog.d(AppConstants.TAG, "getChatHistory START=> token:${accessToken.token}")
+            val call = apiService.getChatHistory(accessToken.token)
+            call.enqueue(object : Callback<MessagesResponseModel> {
+                override fun onResponse(call: Call<MessagesResponseModel>, response: Response<MessagesResponseModel>) {
+                    val result = response.body()
+                    val throwable = hasError(result, response.code(), response.errorBody())
+                    if (throwable != null) {
+                        subscriber.onError(throwable)
+                        return
+                    }
+                    val resultJson = ApplicationUtils.makeJsonObject(result!!)
+                    val userModel = iDataCacheApi.getUserModel()
+                    AppLog.d(AppConstants.TAG, "getChatHistory success=>: $resultJson")
+                    for (chat: Message in result.messages!!) {
+                        if (chat.sentById == userModel!!.id) {
+                            chat.sentByMe = true
+                        }
+                    }
+
+                    subscriber.onNext(result)
+                    subscriber.onComplete()
+                }
+
+                override fun onFailure(call: Call<MessagesResponseModel>, t: Throwable) {
+                    AppLog.d(AppConstants.TAG, "getChatHistory onFailure: " + t.message)
+                    subscriber.onError(Throwable())
+                }
+            })
+        }
+    }
+
     override fun getRooms(): Observable<RoomsResponseModel> {
         return Observable.create { subscriber ->
             val apiService = RestApiClient.client.create(ApiService::class.java)
@@ -32,11 +73,12 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
             call.enqueue(object : Callback<RoomsResponseModel> {
                 override fun onResponse(call: Call<RoomsResponseModel>, response: Response<RoomsResponseModel>) {
                     val result = response.body()
-                    if (result == null) {
-                        subscriber.onError(Throwable())
+                    val throwable = hasError(result, response.code(), response.errorBody())
+                    if (throwable != null) {
+                        subscriber.onError(throwable)
                         return
                     }
-                    val resultJson = ApplicationUtils.makeJsonObject(result)
+                    val resultJson = ApplicationUtils.makeJsonObject(result!!)
                     AppLog.d(AppConstants.TAG, "getRooms success=>: $resultJson")
 
                     subscriber.onNext(result)
@@ -67,11 +109,12 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
             call.enqueue(object : Callback<RoomResponseModel> {
                 override fun onResponse(call: Call<RoomResponseModel>, response: Response<RoomResponseModel>) {
                     val result = response.body()
-                    if (result == null) {
-                        subscriber.onError(Throwable())
+                    val throwable = hasError(result, response.code(), response.errorBody())
+                    if (throwable != null) {
+                        subscriber.onError(throwable)
                         return
                     }
-                    val resultJson = ApplicationUtils.makeJsonObject(result)
+                    val resultJson = ApplicationUtils.makeJsonObject(result!!)
                     AppLog.d(AppConstants.TAG, "addRoom success=>: $resultJson")
 
                     subscriber.onNext(result)
@@ -147,11 +190,12 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
             call.enqueue(object : Callback<UserResponseModel> {
                 override fun onResponse(call: Call<UserResponseModel>, response: Response<UserResponseModel>) {
                     val result = response.body()
-                    if (result?.userModel == null) {
-                        subscriber.onError(Throwable())
+                    val throwable = hasError(result, response.code(), response.errorBody())
+                    if (throwable != null) {
+                        subscriber.onError(throwable)
                         return
                     }
-                    val resultJson = ApplicationUtils.makeJsonObject(result.userModel!!)
+                    val resultJson = ApplicationUtils.makeJsonObject(result!!.userModel!!)
                     AppLog.d(AppConstants.TAG, "getMyProfile success=>: $resultJson")
                     iDataCacheApi.saveDataToCache(AppConstants.Cache.USER_MODEL, resultJson)
 
@@ -179,11 +223,12 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
             call.enqueue(object : Callback<AccessTokenResponseModel> {
                 override fun onResponse(call: Call<AccessTokenResponseModel>, response: Response<AccessTokenResponseModel>) {
                     val result = response.body()
-                    if (result?.accessToken == null) {
-                        subscriber.onError(Throwable())
+                    val throwable = hasError(result, response.code(), response.errorBody())
+                    if (throwable != null) {
+                        subscriber.onError(throwable)
                         return
                     }
-                    val resultJson = ApplicationUtils.makeJsonObject(result.accessToken!!)
+                    val resultJson = ApplicationUtils.makeJsonObject(result!!.accessToken!!)
                     AppLog.d(AppConstants.TAG, "login success=>: $resultJson")
                     val iDataCacheApi = DataCacheApiImpl(mContext)
                     iDataCacheApi.saveDataToCache(AppConstants.Cache.ACCESS_TOKEN, resultJson)

@@ -4,10 +4,7 @@ package com.github.kieuthang.login_chat.views.common
 import android.content.Context
 import com.github.kieuthang.login_chat.data.DataRepositoryImpl
 import com.github.kieuthang.login_chat.data.DefaultSubscriber
-import com.github.kieuthang.login_chat.data.entity.AccessTokenResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomResponseModel
-import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel
-import com.github.kieuthang.login_chat.data.entity.UserResponseModel
+import com.github.kieuthang.login_chat.data.entity.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -106,6 +103,23 @@ class DataPresenter internal constructor(context: Context) : BaseContract.Presen
                         super.onError(e)
                         iLoginDataLoadView!!.hideLoading()
                         iLoginDataLoadView!!.onAddRoomResult(null, e)
+                    }
+                })
+    }
+
+    fun getChatHistory(id: Long) {
+        iDataRepository!!.getChatHistory(id).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DefaultSubscriber<MessagesResponseModel>() {
+                    override fun onNext(t: MessagesResponseModel) {
+                        super.onNext(t)
+                        iLoginDataLoadView!!.hideLoading()
+                        iLoginDataLoadView!!.onGetChatHistoryResult(t, null)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        super.onError(e)
+                        iLoginDataLoadView!!.hideLoading()
+                        iLoginDataLoadView!!.onGetChatHistoryResult(null, e)
                     }
                 })
     }
