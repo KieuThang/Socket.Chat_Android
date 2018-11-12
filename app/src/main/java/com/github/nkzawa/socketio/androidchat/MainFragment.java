@@ -129,11 +129,11 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMessagesView = (RecyclerView) view.findViewById(R.id.messages);
+        mMessagesView = view.findViewById(R.id.messages);
         mMessagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mMessagesView.setAdapter(mAdapter);
 
-        mInputMessageView = (EditText) view.findViewById(R.id.message_input);
+        mInputMessageView = view.findViewById(R.id.message_input);
         mInputMessageView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int id, KeyEvent event) {
@@ -168,7 +168,7 @@ public class MainFragment extends Fragment {
             }
         });
 
-        ImageButton sendButton = (ImageButton) view.findViewById(R.id.send_button);
+        ImageButton sendButton = view.findViewById(R.id.send_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

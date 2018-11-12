@@ -3,9 +3,12 @@ package com.github.kieuthang.login_chat.views
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +23,7 @@ import com.github.kieuthang.login_chat.common.AppConstants
 import com.github.kieuthang.login_chat.common.AppConstants.TAG
 import com.github.kieuthang.login_chat.common.log.AppLog
 import com.github.kieuthang.login_chat.common.utils.ApplicationUtils
+import com.github.kieuthang.login_chat.common.utils.TimeUtils
 import com.github.kieuthang.login_chat.data.entity.*
 import com.github.kieuthang.login_chat.views.common.BaseFragmentActivity
 import com.github.kieuthang.login_chat.views.widget.SFUITextView
@@ -33,11 +37,10 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class ActivityChat : BaseFragmentActivity() {
+    private val TYPING_TIMER_LENGTH = 600
     private var mRoomModel: RoomModel? = null
     private var mSocket: Socket? = null
 
-    private val VIEW_TYPE_ITEM = 0
-    private val VIEW_TYPE_LOADING = 1
     private val DEFAULT_PAGE_SIZE = 100
     private var isLoading: Boolean = false
     private var isConnected: Boolean = true
@@ -49,6 +52,7 @@ class ActivityChat : BaseFragmentActivity() {
 
     private var mAdapter: ChatAdapter? = null
     private var mLinearLayout: LinearLayoutManager? = null
+    private val mTypingHandler = Handler()
 
     companion object {
         fun createIntent(context: Context, roomModel: RoomModel): Intent {
@@ -86,6 +90,31 @@ class ActivityChat : BaseFragmentActivity() {
         }
 
         tvTitle.text = mRoomModel!!.name
+
+        edtSendMessage.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (null == mUsername) return
+                if (!mSocket!!.connected()) return
+
+                if (!mTyping) {
+                    mTyping = true
+                    val msg = buildMessage(null)
+                    mSocket!!.emit("client__typing", msg)
+                }
+
+                mTypingHandler.removeCallbacks(onTypingTimeout)
+                mTypingHandler.postDelayed(onTypingTimeout, TYPING_TIMER_LENGTH.toLong())
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+        })
     }
 
     private fun sendMessage(msg: String) {
@@ -93,19 +122,21 @@ class ActivityChat : BaseFragmentActivity() {
         if (!mSocket!!.connected()) return
 
         mTyping = false
+        val message = buildMessage(msg)
+        AppLog.d(AppConstants.TAG, "client__sent_message: $message")
+        mSocket!!.emit("client__sent_message", message)
+    }
+
+    private fun buildMessage(chat: String?): String {
         val message = Message()
         message.sentById = mUserModel!!.id
         message.sentByName = mUserModel!!.firstName + " " + mUserModel!!.lastName
-        message.message = msg
-        // message.sentOn = System.currentTimeMillis()
+        message.message = chat
+        message.sentOn = System.currentTimeMillis()
         message.roomId = mRoomModel!!.id
         message.roomName = mRoomModel!!.name
 
-        val content = ApplicationUtils.makeJsonObject(message)
-
-        AppLog.d(AppConstants.TAG, "client__sent_message: $content")
-        // perform the sending message attempt.
-        mSocket!!.emit("client__sent_message", content)
+        return ApplicationUtils.makeJsonObject(message)
     }
 
     private fun setupData() {
@@ -149,7 +180,7 @@ class ActivityChat : BaseFragmentActivity() {
         mMessage.clear()
         mMessage.addAll(t.messages!!)
         mAdapter!!.notifyDataSetChanged()
-        mLinearLayout!!.scrollToPositionWithOffset(mMessage.size - 1, 10)
+        scrollToBottom()
     }
 
     override fun onDestroy() {
@@ -210,10 +241,20 @@ class ActivityChat : BaseFragmentActivity() {
         AppLog.d(AppConstants.TAG, "onNewMessage:=======2222:" + args.toString())
         runOnUiThread {
             val data = args[0] as String
-            val message = Gson().fromJson<Message>(data, Message::class.java)
-            AppLog.d(AppConstants.TAG, "onNewMessage:" + data)
+            val message = parseData(data) ?: return@runOnUiThread
+            message.type = Message.TYPE_MESSAGE
+            AppLog.d(AppConstants.TAG, "onNewMessage:$data")
+            if (message.sentById == mUserModel!!.id) {
+                message.sentByMe = true
+                edtSendMessage.setText("")
+            }
+
             addMessage(message)
         }
+    }
+
+    private fun parseData(data: String): Message? {
+        return Gson().fromJson<Message>(data, Message::class.java)
     }
 
     private fun addMessage(message: Message?) {
@@ -221,7 +262,7 @@ class ActivityChat : BaseFragmentActivity() {
             return
         mMessage.add(message)
         mAdapter!!.notifyItemInserted(mMessage.size - 1)
-        mLinearLayout!!.scrollToPositionWithOffset(mMessage.size - 1, 10)
+        scrollToBottom()
     }
 
     private var onUserJoined = Emitter.Listener { args ->
@@ -262,35 +303,37 @@ class ActivityChat : BaseFragmentActivity() {
     }
 
     private var onTyping = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
-            val data = args[0] as JSONObject
-            val username: String
-            try {
-                username = data.getString("username")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
+        runOnUiThread {
+            val data = args[0] as String
+            val message = parseData(data) ?: return@runOnUiThread
+            message.type = Message.TYPE_TYPING
 
-//            if (TextUtils.equals(mUsername, username))
-//                return@Runnable
-//            addTyping(username)
-        })
+            addMessage(message)
+        }
+    }
+
+    private fun scrollToBottom() {
+        mLinearLayout!!.scrollToPositionWithOffset(mMessage.size - 1, 10)
     }
 
     private var onStopTyping = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
-            val data = args[0] as JSONObject
-            val username: String
-            try {
-                username = data.getString("username")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
+        runOnUiThread {
+            val data = args[0] as String
+            val message = parseData(data) ?: return@runOnUiThread
+            message.type = Message.TYPE_TYPING
 
-//            removeTyping(username)
-        })
+            removeTyping(message)
+        }
+    }
+
+    private fun removeTyping(msg: Message) {
+        for (i in mMessage.indices.reversed()) {
+            val message = mMessage.get(i)
+            if (message.type == Message.TYPE_TYPING && message.sentById == msg.sentById) {
+                mMessage.removeAt(i)
+                mAdapter!!.notifyItemRemoved(i)
+            }
+        }
     }
 
     private var onUpdateRoom = Emitter.Listener { args ->
@@ -331,29 +374,36 @@ class ActivityChat : BaseFragmentActivity() {
         if (!mTyping) return@Runnable
 
         mTyping = false
-        mSocket!!.emit("client__stop_typing", mUsername)
+        val msg = buildMessage(null)
+        mSocket!!.emit("client__stop_typing", msg)
     }
 
     private inner class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val mInflater: LayoutInflater = LayoutInflater.from(this@ActivityChat)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            if (viewType == VIEW_TYPE_ITEM) {
-                val view = mInflater.inflate(R.layout.layout_item_chat, parent, false)
-                return ViewHolder(view)
-            } else if (viewType == VIEW_TYPE_LOADING) {
-                val loadingView = mInflater.inflate(R.layout.item_loading, parent, false)
-                return LoadingViewHolder(loadingView)
+            when (viewType) {
+                Message.TYPE_MESSAGE -> {
+                    val view = mInflater.inflate(R.layout.layout_item_chat, parent, false)
+                    return ViewHolder(view)
+                }
+                Message.TYPE_LOADING_VIEW -> {
+                    val loadingView = mInflater.inflate(R.layout.item_loading, parent, false)
+                    return LoadingViewHolder(loadingView)
+                }
+                Message.TYPE_TYPING -> return TypingViewHolder((mInflater.inflate(R.layout.layout_chat_typing_item, parent, false)))
             }
-            return null!!
+
+            val view = mInflater.inflate(R.layout.layout_item_chat, parent, false)
+            return ViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             val message = mMessage[position]
-            if (holder is ViewHolder) {
-                holder.bind(message)
-            } else if (holder is LoadingViewHolder) {
-                holder.progressBar.isIndeterminate = true
+            when (holder) {
+                is ViewHolder -> holder.bind(message)
+                is LoadingViewHolder -> holder.progressBar.isIndeterminate = true
+                is TypingViewHolder -> holder.tvUserTyping.text = getString(R.string.user_name_is_typing, message.sentByName)
             }
         }
 
@@ -363,18 +413,15 @@ class ActivityChat : BaseFragmentActivity() {
 
         override fun getItemViewType(position: Int): Int {
             val alarmChat = mMessage[position]
-            return if (alarmChat.type == Message.TYPE_LOADING_VIEW) {
-                VIEW_TYPE_LOADING
-            } else
-                VIEW_TYPE_ITEM
-        }
-
-        fun updateData() {
-            notifyDataSetChanged()
+            return alarmChat.type
         }
 
         internal inner class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             internal var progressBar: ProgressBar = view.findViewById(R.id.progressBar1)
+        }
+
+        internal inner class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            internal var tvUserTyping: SFUITextView = view.findViewById(R.id.tvUserTyping)
         }
 
         internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -404,10 +451,8 @@ class ActivityChat : BaseFragmentActivity() {
                 tvUserInfoLeft.text = message.sentByName
 
                 tvUserInfoRight.text = message.sentByName
-//                tvTimeLeft.text = TimeUtils.convertChatItemDateTime(message.sentOn)
-//                tvTimeRight.text = TimeUtils.convertChatItemDateTime(message.sentOn)
-                tvTimeLeft.text = message.sentOn
-                tvTimeRight.text = message.sentOn
+                tvTimeLeft.text = TimeUtils.convertChatItemDateTime(message.sentOn)
+                tvTimeRight.text = TimeUtils.convertChatItemDateTime(message.sentOn)
             }
 
             private fun updateChatStyle(message: Message) {
@@ -427,12 +472,6 @@ class ActivityChat : BaseFragmentActivity() {
                     tvTimeLeft.setTextColor(resources.getColor(R.color.colorTextAlarmChatTime))
                 }
             }
-        }
-
-        fun addChatItem(testAlarmChat: Message) {
-            // mMessage.add(testAlarmChat)
-            val size = mMessage.size
-            notifyItemInserted(size)
         }
 
         fun setLoaded() {

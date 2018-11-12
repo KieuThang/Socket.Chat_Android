@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/margin_medium"
+    android:paddingBottom="@dimen/margin_medium">
+
+    <com.github.kieuthang.login_chat.views.widget.SFUITextView
+        android:id="@+id/tvUserTyping"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="14dp" />
+</LinearLayout>

@@ -44,6 +44,7 @@ class DataRepositoryImpl(context: Context) : BaseRepositoryImpl(context), IDataR
                         if (chat.sentById == userModel!!.id) {
                             chat.sentByMe = true
                         }
+                        chat.type = Message.TYPE_MESSAGE
                     }
 
                     subscriber.onNext(result)
