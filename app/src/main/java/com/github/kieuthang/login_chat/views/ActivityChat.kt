@@ -53,6 +53,7 @@ class ActivityChat : BaseFragmentActivity() {
     private var mAdapter: ChatAdapter? = null
     private var mLinearLayout: LinearLayoutManager? = null
     private val mTypingHandler = Handler()
+    private var mUserOnlines = ArrayList<String>()
 
     companion object {
         fun createIntent(context: Context, roomModel: RoomModel): Intent {
@@ -477,5 +478,27 @@ class ActivityChat : BaseFragmentActivity() {
         fun setLoaded() {
             isLoading = false
         }
+    }
+
+    private inner class OnlineAdapter : RecyclerView.Adapter<OnlineAdapter.ViewHolder>() {
+        private val mInflater: LayoutInflater = LayoutInflater.from(this@ActivityChat)
+
+        internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val tvUserName: SFUITextView = itemView.findViewById(R.id.tvUserName)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, p1: Int): OnlineAdapter.ViewHolder {
+            val view = mInflater.inflate(R.layout.layout_item_chat, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun getItemCount(): Int {
+            return mUserOnlines.size
+        }
+
+        override fun onBindViewHolder(holder: OnlineAdapter.ViewHolder, p1: Int) {
+            holder.tvUserName.text = mUserOnlines.get(p1)
+        }
+
     }
 }
