@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_medium"
+        android:gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="15 Onlines"
         android:textColor="@android:color/black"

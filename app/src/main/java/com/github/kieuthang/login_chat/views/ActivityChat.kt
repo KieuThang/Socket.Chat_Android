@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.view.GravityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
@@ -32,6 +33,8 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.actionbar_home.*
 import kotlinx.android.synthetic.main.activity_chat.*
+import kotlinx.android.synthetic.main.activity_chat_drawer.*
+import kotlinx.android.synthetic.main.layout_side_menu.*
 import org.apache.commons.lang3.StringEscapeUtils
 import org.json.JSONException
 import org.json.JSONObject
@@ -53,7 +56,9 @@ class ActivityChat : BaseFragmentActivity() {
     private var mAdapter: ChatAdapter? = null
     private var mLinearLayout: LinearLayoutManager? = null
     private val mTypingHandler = Handler()
-    private var mUserOnlines = ArrayList<String>()
+
+    private var mUserOnlines = ArrayList<UserModel>()
+    private var mOnlineAdapter: OnlineAdapter? = null
 
     companion object {
         fun createIntent(context: Context, roomModel: RoomModel): Intent {
@@ -83,6 +88,19 @@ class ActivityChat : BaseFragmentActivity() {
         rvChat.layoutManager = mLinearLayout
         mAdapter = ChatAdapter()
         rvChat.adapter = mAdapter
+
+        rvOnlineUsers.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+        mOnlineAdapter = OnlineAdapter()
+        rvOnlineUsers.adapter = mOnlineAdapter
+
+        btnHamburger.setOnClickListener {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+        }
+
         btnSendMessage.setOnClickListener {
             val message = edtSendMessage.text.toString()
             if (TextUtils.isEmpty(message))
@@ -96,6 +114,8 @@ class ActivityChat : BaseFragmentActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if (null == mUsername) return
                 if (!mSocket!!.connected()) return
+                if (s == null || TextUtils.isEmpty(s.toString()))
+                    return
 
                 if (!mTyping) {
                     mTyping = true
@@ -116,6 +136,14 @@ class ActivityChat : BaseFragmentActivity() {
             }
 
         })
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+            return
+        }
+        super.onBackPressed()
     }
 
     private fun sendMessage(msg: String) {
@@ -149,12 +177,11 @@ class ActivityChat : BaseFragmentActivity() {
         mSocket!!.on(Socket.EVENT_CONNECT_ERROR, onConnectError)
         mSocket!!.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError)
         mSocket!!.on("server__sent_message", onNewMessage)
-        mSocket!!.on("server__new_user_joined", onUserJoined)
+        mSocket!!.on("server__user_joined", onUserJoined)
         mSocket!!.on("server__user_left", onUserLeft)
         mSocket!!.on("server__user_typing", onTyping)
         mSocket!!.on("server__user_stop_typing", onStopTyping)
         mSocket!!.on("server__update_room", onUpdateRoom)
-        mSocket!!.on("server__join_room_welcome", onJoinRoomWelcome)
         mSocket!!.connect()
 
         mDataPresenter!!.getMyProfile(false)
@@ -166,7 +193,7 @@ class ActivityChat : BaseFragmentActivity() {
             mUserModel = t.userModel
             mUsername = mUserModel!!.firstName + " " + mUserModel!!.lastName
 
-            mSocket!!.emit("client__login", mUsername, mRoomModel!!.name)
+            mSocket!!.emit("client__login", mUsername, mUserModel!!.id, mRoomModel!!.name)
             mDataPresenter!!.getChatHistory(mRoomModel!!.id)
         }
     }
@@ -202,15 +229,45 @@ class ActivityChat : BaseFragmentActivity() {
     }
 
     private var onLogin = Emitter.Listener { args ->
-        val data = args[0] as JSONObject
+        runOnUiThread {
+            val data = args[0] as JSONObject
 
-        val numUsers: Int
-        try {
-            numUsers = data.getInt("numUsers")
-        } catch (e: JSONException) {
-            return@Listener
+            val username: String
+            val userId: Long
+            try {
+                username = data.getString("username")
+                userId = data.getLong("userId")
+
+            } catch (e: JSONException) {
+                return@runOnUiThread
+            }
+            AppLog.d(AppConstants.TAG, "username: $username")
+            addUser(username, userId)
         }
-        AppLog.d(AppConstants.TAG, "numUsers: $numUsers")
+    }
+
+    private fun addUser(username: String?, userId: Long) {
+        val userModel = UserModel()
+        userModel.id = userId
+        userModel.firstName = username
+        mUserOnlines.add(userModel)
+        tvNumberOnline.text = getString(R.string.number_onlines, mUserOnlines.size)
+        mOnlineAdapter!!.notifyDataSetChanged()
+    }
+
+    private fun removeUser(username: String?, userId: Long) {
+        var removeUser: UserModel? = null
+        for (userModel: UserModel in mUserOnlines) {
+            if(userModel.id == userId){
+                removeUser = userModel
+                break
+            }
+        }
+        if(removeUser != null){
+            mUserOnlines.remove(removeUser)
+            tvNumberOnline.text = getString(R.string.number_onlines, mUserOnlines.size)
+            mOnlineAdapter!!.notifyDataSetChanged()
+        }
     }
 
     private var onConnect = Emitter.Listener {
@@ -267,40 +324,39 @@ class ActivityChat : BaseFragmentActivity() {
     }
 
     private var onUserJoined = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
+        runOnUiThread {
             val data = args[0] as JSONObject
+
             val username: String
-            val numUsers: Int
+            val userId: Long
             try {
                 username = data.getString("username")
-                numUsers = data.getInt("numUsers")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
+                userId = data.getLong("userId")
 
-//            addLog(resources.getString(R.string.message_user_joined, username))
-//            addParticipantsLog(numUsers)
-        })
+            } catch (e: JSONException) {
+                return@runOnUiThread
+            }
+            AppLog.d(AppConstants.TAG, "add username: $username")
+            addUser(username, userId)
+        }
     }
 
     private var onUserLeft = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
+        runOnUiThread {
             val data = args[0] as JSONObject
+
             val username: String
-            val numUsers: Int
+            val userId: Long
             try {
                 username = data.getString("username")
-                numUsers = data.getInt("numUsers")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
+                userId = data.getLong("userId")
 
-//            addLog(resources.getString(R.string.message_user_left, username))
-//            addParticipantsLog(numUsers)
-//            removeTyping(username)
-        })
+            } catch (e: JSONException) {
+                return@runOnUiThread
+            }
+            AppLog.d(AppConstants.TAG, "remove username: $username")
+            removeUser(username, userId)
+        }
     }
 
     private var onTyping = Emitter.Listener { args ->
@@ -338,7 +394,7 @@ class ActivityChat : BaseFragmentActivity() {
     }
 
     private var onUpdateRoom = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
+        runOnUiThread {
             val data = args[0] as JSONObject
             val username: String
             val numUsers: Int
@@ -347,28 +403,9 @@ class ActivityChat : BaseFragmentActivity() {
                 numUsers = data.getInt("numUsers")
             } catch (e: JSONException) {
                 Log.e(TAG, e.message)
-                return@Runnable
+                return@runOnUiThread
             }
-
-//            addLog(resources.getString(R.string.message_user_joined, username))
-//            addParticipantsLog(numUsers)
-        })
-    }
-
-    private var onJoinRoomWelcome = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
-            val data = args[0] as JSONObject
-            val room: String
-
-            try {
-                room = data.getString("room")
-            } catch (e: JSONException) {
-                Log.e(TAG, e.message)
-                return@Runnable
-            }
-
-//            addLog(getString(R.string.welcom_to_join, room))
-        })
+        }
     }
 
     private var onTypingTimeout = Runnable {
@@ -488,7 +525,7 @@ class ActivityChat : BaseFragmentActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, p1: Int): OnlineAdapter.ViewHolder {
-            val view = mInflater.inflate(R.layout.layout_item_chat, parent, false)
+            val view = mInflater.inflate(R.layout.layout_user_online_item, parent, false)
             return ViewHolder(view)
         }
 
@@ -497,7 +534,9 @@ class ActivityChat : BaseFragmentActivity() {
         }
 
         override fun onBindViewHolder(holder: OnlineAdapter.ViewHolder, p1: Int) {
-            holder.tvUserName.text = mUserOnlines.get(p1)
+            val userModel = mUserOnlines.get(p1)
+            val username = if (mUserModel!!.id == userModel.id) mUserOnlines.get(p1).firstName + "(You)" else mUserOnlines.get(p1).firstName
+            holder.tvUserName.text = username
         }
 
     }

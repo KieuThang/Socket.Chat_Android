@@ -7,7 +7,6 @@ import com.github.kieuthang.login_chat.data.entity.RoomResponseModel;
 import com.github.kieuthang.login_chat.data.entity.RoomsResponseModel;
 import com.github.kieuthang.login_chat.data.entity.UserModel;
 import com.github.kieuthang.login_chat.data.entity.UserResponseModel;
-import com.github.nkzawa.socketio.androidchat.Rooms;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -18,9 +17,6 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface ApiService {
-    @GET("getRooms/")
-    Call<Rooms> getRooms();
-
     @FormUrlEncoded
     @POST("users/login")
     Call<AccessTokenResponseModel> login(@Field("email") String email, @Field("password") String password);
