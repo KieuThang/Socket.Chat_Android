@@ -20,4 +20,5 @@ class UserModel : BaseResponseModel() {
     var isActive: Boolean = true
     @SerializedName("isDeleted")
     var isDeleted: Boolean = false
+    var socketId: String? = null
 }

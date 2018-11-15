@@ -182,6 +182,7 @@ class ActivityChat : BaseFragmentActivity() {
         mSocket!!.on("server__user_typing", onTyping)
         mSocket!!.on("server__user_stop_typing", onStopTyping)
         mSocket!!.on("server__update_room", onUpdateRoom)
+        mSocket!!.on("server__show_your_hand_up", onShowYourHandUp)
         mSocket!!.connect()
 
         mDataPresenter!!.getMyProfile(false)
@@ -234,36 +235,48 @@ class ActivityChat : BaseFragmentActivity() {
 
             val username: String
             val userId: Long
+            val socketId: String
             try {
                 username = data.getString("username")
                 userId = data.getLong("userId")
+                socketId = data.getString("socketId")
 
             } catch (e: JSONException) {
                 return@runOnUiThread
             }
             AppLog.d(AppConstants.TAG, "username: $username")
-            addUser(username, userId)
+            addUser(username, userId, socketId)
         }
     }
 
-    private fun addUser(username: String?, userId: Long) {
+    private fun addUser(username: String?, userId: Long, socketId: String) {
         val userModel = UserModel()
         userModel.id = userId
         userModel.firstName = username
+        userModel.socketId = socketId
+        var exist = false
+        for (user: UserModel in mUserOnlines) {
+            if (user.id == userId) {
+                exist = true
+                break
+            }
+        }
+        if (exist)
+            return
         mUserOnlines.add(userModel)
         tvNumberOnline.text = getString(R.string.number_onlines, mUserOnlines.size)
         mOnlineAdapter!!.notifyDataSetChanged()
     }
 
-    private fun removeUser(username: String?, userId: Long) {
+    private fun removeUser(socktId: String) {
         var removeUser: UserModel? = null
         for (userModel: UserModel in mUserOnlines) {
-            if(userModel.id == userId){
+            if (userModel.socketId == socktId) {
                 removeUser = userModel
                 break
             }
         }
-        if(removeUser != null){
+        if (removeUser != null) {
             mUserOnlines.remove(removeUser)
             tvNumberOnline.text = getString(R.string.number_onlines, mUserOnlines.size)
             mOnlineAdapter!!.notifyDataSetChanged()
@@ -329,15 +342,17 @@ class ActivityChat : BaseFragmentActivity() {
 
             val username: String
             val userId: Long
+            val socketId: String
             try {
                 username = data.getString("username")
                 userId = data.getLong("userId")
+                socketId = data.getString("socketId")
 
             } catch (e: JSONException) {
                 return@runOnUiThread
             }
             AppLog.d(AppConstants.TAG, "add username: $username")
-            addUser(username, userId)
+            addUser(username, userId, socketId)
         }
     }
 
@@ -345,17 +360,14 @@ class ActivityChat : BaseFragmentActivity() {
         runOnUiThread {
             val data = args[0] as JSONObject
 
-            val username: String
-            val userId: Long
+            val socketId: String
             try {
-                username = data.getString("username")
-                userId = data.getLong("userId")
-
+                socketId = data.getString("socketId")
             } catch (e: JSONException) {
                 return@runOnUiThread
             }
-            AppLog.d(AppConstants.TAG, "remove username: $username")
-            removeUser(username, userId)
+            AppLog.d(AppConstants.TAG, "remove username: $socketId")
+            removeUser(socketId)
         }
     }
 
@@ -405,6 +417,12 @@ class ActivityChat : BaseFragmentActivity() {
                 Log.e(TAG, e.message)
                 return@runOnUiThread
             }
+        }
+    }
+
+    private var onShowYourHandUp = Emitter.Listener { args ->
+        runOnUiThread {
+            mSocket!!.emit("client__show_my_hand", mUsername, mUserModel!!.id, mRoomModel!!.name)
         }
     }
 

@@ -7,8 +7,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RestApiClient {
-    val BASE_PRODUCTION_URL = "http://192.168.0.124:3000/"
-//    val BASE_PRODUCTION_URL = "http://192.168.1.187:3000/"
+//    val BASE_PRODUCTION_URL = "http://192.168.0.124:3000/"
+    val BASE_PRODUCTION_URL = "http://192.168.1.187:3000/"
     private var retrofit: Retrofit? = null
 
 
